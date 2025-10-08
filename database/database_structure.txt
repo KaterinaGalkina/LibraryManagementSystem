@@ -1,0 +1,116 @@
+-- =====================================================
+-- TABLE: documents (base table for books, magazines, etc.)
+-- =====================================================
+
+CREATE TABLE documents (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    nb_copies INTEGER NOT NULL CHECK(nb_copies >= 0)
+);
+
+
+-- =====================================================
+-- TABLE: magazines (specialization of documents)
+-- =====================================================
+
+CREATE TABLE magazines (
+    id INTEGER PRIMARY KEY,                     -- same ID as documents.id
+    periodicity TEXT NOT NULL CHECK (periodicity IN ('Daily', 'Weekly', 'Monthly', 'Quarterly', 'Annually')),
+    FOREIGN KEY (id) REFERENCES documents(id) ON DELETE CASCADE
+);
+
+
+-- =====================================================
+-- TABLE: magazine_numbers (issues of a magazine)
+-- =====================================================
+
+CREATE TABLE magazine_numbers (
+    magazine_id INTEGER NOT NULL,
+    issue_number INTEGER NOT NULL,
+    issue_date DATE DEFAULT (DATE('now')),
+    PRIMARY KEY (magazine_id, issue_number),
+    FOREIGN KEY (magazine_id) REFERENCES magazines(id) ON DELETE CASCADE
+);
+
+
+-- =====================================================
+-- TABLE: books (specialization of documents)
+-- =====================================================
+
+CREATE TABLE books (
+    id INTEGER PRIMARY KEY,                     -- same ID as documents.id
+    isbn INTEGER NOT NULL UNIQUE,
+    pages_number INTEGER NOT NULL CHECK (pages_number > 0),
+    year INTEGER DEFAULT (CAST(STRFTIME('%Y', 'now') AS INTEGER)),
+    FOREIGN KEY (id) REFERENCES documents(id) ON DELETE CASCADE
+);
+
+
+-- =====================================================
+-- TABLE: document_genres (many-to-many: documents <-> genres)
+-- =====================================================
+
+CREATE TABLE document_genres (
+    document_id INTEGER NOT NULL,
+    genre TEXT NOT NULL CHECK (genre IN ('Action','Drama','Fantasy','Animation','Thriller','Historical','Romance','Mystery','Science_Fiction','Comedy')),
+    PRIMARY KEY (document_id, genre),
+    FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE
+);
+
+
+-- =====================================================
+-- TABLE: people (authors or members)
+-- =====================================================
+
+CREATE TABLE people (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    birth_date DATE
+);
+
+
+-- =====================================================
+-- TABLE: documents_authors (many-to-many: documents <-> authors)
+-- =====================================================
+
+CREATE TABLE documents_authors (
+    document_id INTEGER NOT NULL,
+    author_id INTEGER NOT NULL,
+    PRIMARY KEY (document_id, author_id),
+    FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE,
+    FOREIGN KEY (author_id) REFERENCES people(id) ON DELETE CASCADE
+);
+
+
+-- =====================================================
+-- TABLE: members (subset of people)
+-- =====================================================
+
+CREATE TABLE members (
+    id INTEGER PRIMARY KEY,                     -- same ID as people.id
+    penalty_status BOOLEAN DEFAULT 0,
+    phone_number TEXT,
+    address TEXT,
+    mail TEXT,
+    FOREIGN KEY (id) REFERENCES people(id) ON DELETE CASCADE
+);
+
+
+-- =====================================================
+-- TABLE: borrowings (links people <-> documents)
+-- =====================================================
+
+CREATE TABLE borrowings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    document_id INTEGER NOT NULL,
+    person_id INTEGER NOT NULL,
+    start_date DATE DEFAULT (DATE('now')),
+    expected_end_date DATE GENERATED ALWAYS AS (
+        DATE(start_date, '+21 days')
+    ) VIRTUAL,
+    real_end_date DATE,
+    FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE,
+    FOREIGN KEY (person_id) REFERENCES people(id) ON DELETE CASCADE,
+    UNIQUE(document_id, person_id, start_date)
+);
