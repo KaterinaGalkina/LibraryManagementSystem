@@ -1,5 +1,6 @@
 package people;
 
+import java.lang.annotation.Documented;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -22,11 +23,29 @@ public class Author extends Person {
             document.addAuthor(this);
         } 
     }
+
+    Author(String first_name, String last_name, LocalDate birth_date, int id, Set<Document> written_documents) {
+        super(id, first_name, last_name, birth_date);
+        this.written_documents = written_documents;
+        // Consistency is assumed: every document in the set has this author in its list of authors
+    }
+
+    public void setWritten_documents(Set<Document> written_documents) {
+        this.written_documents = written_documents;
+    }
     
     // Adds a document in the list of writings of this author, and returns true if it succeds
     public boolean addDocument(Document new_document){
         if (new_document != null && !written_documents.contains(new_document)){
             written_documents.add(new_document);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean deleteDocument(Document document_to_delete){
+        if(this.written_documents.contains(document_to_delete)){
+            this.written_documents.remove(document_to_delete);
             return true;
         }
         return false;

@@ -16,6 +16,13 @@ public class Book extends Document {
         this.year = year;
     }
 
+    Book(Set<Type> type, String title, int id, int nb_copies, Set<Author> authors, int isbn, int nb_pages, int year) {
+        super(type, title, nb_copies, id, authors);
+        this.isbn = isbn;
+        this.nb_pages = nb_pages;
+        this.year = year;
+    }
+
     public int getIsbn() {
         return isbn;
     }

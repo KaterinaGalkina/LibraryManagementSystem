@@ -4,10 +4,10 @@ import java.util.Set;
 import people.Author;
 
 public abstract class Document {
+    private int id;
     private Set<Type> type;
     private String title;
     private int nb_copies;
-    private int id;
     private static int nb_documents = 0;
     private Set<Author> authors;
 
@@ -34,23 +34,47 @@ public abstract class Document {
     }
 
     public Set<Type> getType() {
-        return type;
+        return this.type;
     }
 
     public String getTitle() {
-        return title;
+        return this.title;
     }
 
     public int getNb_copies() {
-        return nb_copies;
+        return this.nb_copies;
     }
 
     public int getId() {
-        return id;
+        return this.id;
     }
 
     public static int getNb_documents() {
         return nb_documents;
+    }
+
+    public void setType(Set<Type> type) {
+        this.type = type;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setNb_copies(int nb_copies) {
+        this.nb_copies = nb_copies;
+    }
+
+    public void setAuthors(Set<Author> authors) {
+        this.authors = authors;
+    }
+
+    public boolean deleteAuthor(Author author_to_delete){
+        if (this.authors.contains(author_to_delete)){ // Ok comparaison on reference, because we won't create the same author 2 times
+            this.authors.remove(author_to_delete);
+            return true;
+        }
+        return false;
     }
 
     // Adds an author in the list of authors of this document, and returns true if it succeds

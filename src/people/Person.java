@@ -26,18 +26,30 @@ public abstract class Person {
     }
 
     public int getId() {
-        return id;
+        return this.id;
     }
 
     public String getFirst_name() {
-        return first_name;
+        return this.first_name;
     }
 
     public String getLast_name() {
-        return last_name;
+        return this.last_name;
     }
 
     public LocalDate getBirth_date() {
-        return birth_date;
+        return this.birth_date;
+    }
+
+    public void setFirst_name(String first_name) {
+        this.first_name = first_name;
+    }
+
+    public void setLast_name(String last_name) {
+        this.last_name = last_name;
+    }
+
+    public void setBirth_date(LocalDate birth_date) {
+        this.birth_date = birth_date;
     }
 }
