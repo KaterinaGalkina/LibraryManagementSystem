@@ -7,14 +7,14 @@ public abstract class Person {
     private String first_name;
     private String last_name;
     private LocalDate birth_date;
-    static private int nb_people = 0;
+    static private int next_id = 0;
 
     Person(String first_name, String last_name, LocalDate birth_date){
         this.first_name = first_name;
         this.last_name = last_name;
         this.birth_date = birth_date;
-        this.id = nb_people; 
-        nb_people ++;
+        this.id = next_id; 
+        next_id ++;
     }
 
     // When we are retriving the information from the database, we want to set the same id, without incrementing number of people
@@ -23,6 +23,14 @@ public abstract class Person {
         this.first_name = first_name;
         this.last_name = last_name;
         this.birth_date = birth_date;
+        if (next_id < id){ // We are taking the largest one, so that there are no duplicates
+            next_id = id + 1;
+        } 
+    }
+
+    @Override
+    public String toString() {
+        return this.first_name + " " + this.last_name + " " + this.birth_date.toString();
     }
 
     public int getId() {

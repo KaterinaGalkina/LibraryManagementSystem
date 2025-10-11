@@ -12,26 +12,50 @@ public class Borrowing {
     private LocalDate borrowing_date;
     private LocalDate return_date;
     private LocalDate real_return_date;
-    private static int number_borrowings = 0;
+    private static int next_id = 0;
 
-    Borrowing(Document document, Member member, LocalDate borrowing_date, LocalDate return_date){
+    public Borrowing(Document document, Member member, LocalDate borrowing_date, LocalDate return_date){
         this.document = document;
         this.member = member;
         this.borrowing_date = borrowing_date;
         this.return_date = return_date;
         this.real_return_date = null;
-        this.id_borrowing = number_borrowings;
-        number_borrowings++;
+        this.id_borrowing = next_id;
+        next_id++;
         member.setNumber_borrowings(member.getNumber_borrowings() + 1);
     }
 
-    Borrowing(int id_borrowing, Document document, Member member, LocalDate borrowing_date, LocalDate return_date, LocalDate real_return_date){
+    // return date by default
+    public Borrowing(Document document, Member member, LocalDate borrowing_date){
+        this.document = document;
+        this.member = member;
+        this.borrowing_date = borrowing_date;
+        this.return_date = LocalDate.now().plusWeeks(3);
+        this.real_return_date = null;
+        this.id_borrowing = next_id;
+        next_id++;
+        member.setNumber_borrowings(member.getNumber_borrowings() + 1);
+    }
+
+    // We already have all the information, because it was in the database
+    public Borrowing(int id_borrowing, Document document, Member member, LocalDate borrowing_date, LocalDate return_date, LocalDate real_return_date){
         this.id_borrowing = id_borrowing;
         this.document = document;
         this.member = member;
         this.borrowing_date = borrowing_date;
         this.return_date = return_date;
         this.real_return_date = real_return_date;
+        if (next_id <= id_borrowing){
+            next_id = id_borrowing + 1;
+        }
+    }
+
+    public String toString(){
+        if (this.real_return_date != null){
+            return this.document.toString() + " from " + this.borrowing_date.toString() + " until " + this.real_return_date.toString() + " - Finished";
+        } else {
+            return this.document.toString() + " from " + this.borrowing_date.toString() + " (until " + this.return_date.toString() + ") - Not Finished";
+        }
     }
 
     public int getId_borrowing() {

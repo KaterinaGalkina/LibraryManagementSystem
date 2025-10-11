@@ -5,25 +5,25 @@ import java.util.Set;
 import people.Author;
 
 public class Book extends Document {
-    private int isbn;
+    private String isbn;
     private int nb_pages;
     private int year;
 
-    Book(Set<Type> type, String title, int nb_copies, Set<Author> authors, int isbn, int nb_pages, int year) {
-        super(type, title, nb_copies, authors);
+    public Book(Set<Genre> genre, String title, int nb_copies, Set<Author> authors, String isbn, int nb_pages, int year) {
+        super(genre, title, nb_copies, authors);
         this.isbn = isbn;
         this.nb_pages = nb_pages;
         this.year = year;
     }
 
-    Book(Set<Type> type, String title, int id, int nb_copies, Set<Author> authors, int isbn, int nb_pages, int year) {
-        super(type, title, nb_copies, id, authors);
+    public Book(Set<Genre> genre, String title, int id, int nb_copies, Set<Author> authors, String isbn, int nb_pages, int year) {
+        super(genre, title, nb_copies, id, authors);
         this.isbn = isbn;
         this.nb_pages = nb_pages;
         this.year = year;
     }
 
-    public int getIsbn() {
+    public String getIsbn() {
         return isbn;
     }
 

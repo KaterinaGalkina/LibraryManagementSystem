@@ -1,51 +1,51 @@
 package documents;
 
-import java.util.Set;
-
-import people.Author;
-
-import java.time.LocalDate;
-
-public class Magazine extends Document{
+public class Magazine{
+    private int magazine_id;
+    private String magazine_title;
     private Periodicity periodicity;
-    private int issue_number;
-    private LocalDate issue_date; // = LocalDate.of(1986, 4, 26);
+    private static int nb_magazines;
 
-    Magazine(Set<Type> type, String title, int nb_copies, Set<Author> authors, Periodicity periodicity, int issue_number, LocalDate issue_date) {
-        super(type, title, nb_copies, authors);
+    public Magazine(String magazine_title, Periodicity periodicity) {
+        this.magazine_id = nb_magazines;
+        this.magazine_title = magazine_title;
         this.periodicity = periodicity;
-        this.issue_number = issue_number;
-        this.issue_date = issue_date;
+        nb_magazines++;
     }
 
-    Magazine(Set<Type> type, String title, int nb_copies, Set<Author> authors, int id, Periodicity periodicity, int issue_number, LocalDate issue_date) {
-        super(type, title, nb_copies, id, authors);
+    public Magazine(int magazine_id, String magazine_title, Periodicity periodicity) {
+        this.magazine_id = magazine_id;
+        this.magazine_title = magazine_title;
         this.periodicity = periodicity;
-        this.issue_number = issue_number;
-        this.issue_date = issue_date;
+    }
+
+    @Override
+    public String toString(){
+        return "\"" + this.magazine_title + "\" of periodicity: " + Periodicity.convertPeriodicityToString(this.periodicity);
+    }
+
+    public int getMagazine_id() {
+        return this.magazine_id;
+    }
+
+    public String getMagazine_title() {
+        return this.magazine_title;
     }
 
     public Periodicity getPeriodicity() {
         return this.periodicity;
     }
-
-    public int getIssue_number() {
-        return this.issue_number;
-    }
-
-    public LocalDate getIssue_date() {
-        return this.issue_date;
-    }
     
+    public void setMagazine_id(int magazine_id) {
+        this.magazine_id = magazine_id;
+    }
+
+    public void setMagazine_title(String magazine_title) {
+        this.magazine_title = magazine_title;
+    }
+
     public void setPeriodicity(Periodicity periodicity) {
         this.periodicity = periodicity;
     }
 
-    public void setIssue_number(int issue_number) {
-        this.issue_number = issue_number;
-    }
-
-    public void setDate(LocalDate issue_date) {
-        this.issue_date = issue_date;
-    }
 }

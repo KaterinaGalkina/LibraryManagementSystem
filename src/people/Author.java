@@ -1,6 +1,5 @@
 package people;
 
-import java.lang.annotation.Documented;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,12 +10,12 @@ public class Author extends Person {
     Set<Document> written_documents;
 
     // We don't have to add list of writings right now 
-    Author(String first_name, String last_name, LocalDate birth_date) {
+    public Author(String first_name, String last_name, LocalDate birth_date) {
         super(first_name, last_name, birth_date);
         written_documents = new HashSet<Document>();
     }
 
-    Author(String first_name, String last_name, LocalDate birth_date, Set<Document> written_documents) {
+    public Author(String first_name, String last_name, LocalDate birth_date, Set<Document> written_documents) {
         super(first_name, last_name, birth_date);
         this.written_documents = written_documents;
         for (Document document: written_documents){ // We are checking consistency: every document in the set has this author in its list of authors
@@ -24,10 +23,9 @@ public class Author extends Person {
         } 
     }
 
-    Author(String first_name, String last_name, LocalDate birth_date, int id, Set<Document> written_documents) {
+    public Author(String first_name, String last_name, LocalDate birth_date, int id) {
         super(id, first_name, last_name, birth_date);
-        this.written_documents = written_documents;
-        // Consistency is assumed: every document in the set has this author in its list of authors
+        written_documents = new HashSet<Document>();
     }
 
     public void setWritten_documents(Set<Document> written_documents) {

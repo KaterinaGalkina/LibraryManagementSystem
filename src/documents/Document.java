@@ -5,36 +5,46 @@ import people.Author;
 
 public abstract class Document {
     private int id;
-    private Set<Type> type;
+    private Set<Genre> genre;
     private String title;
     private int nb_copies;
-    private static int nb_documents = 0;
+    private static int next_id = 0;
     private Set<Author> authors;
 
-    Document(Set<Type> type, String title, int nb_copies, Set<Author> authors){
-        this.type = type;
+    Document(Set<Genre> genre, String title, int nb_copies, Set<Author> authors){
+        this.genre = genre;
         this.title = title;
         this.nb_copies = nb_copies;
         this.authors = authors;
-        this.id = nb_documents;
-        nb_documents++;
+        this.id = next_id;
+        next_id++;
         for(Author author: authors){ // We are checking consistency: every author in the set has this document in its list of writings
             author.addDocument(this);
         }
     }
 
     // When we are retriving the information from the database, we want to set the same id, without incrementing number of documents
-    Document(Set<Type> type, String title, int nb_copies, int id, Set<Author> authors){
-        this.type = type;
+    Document(Set<Genre> genre, String title, int nb_copies, int id, Set<Author> authors){
+        this.genre = genre;
         this.title = title;
         this.nb_copies = nb_copies;
         this.authors = authors;
         this.id = id;
-        // The consistency is assumed since we are not really creating a new document but retrieving the existing one, where everything is correct
+        if (next_id <= id) {
+            next_id = id + 1;
+        }
+        for(Author author: authors){ // We are checking consistency: every author in the set has this document in its list of writings
+            author.addDocument(this);
+        }    
     }
 
-    public Set<Type> getType() {
-        return this.type;
+    @Override
+    public String toString() {
+        return "\"" + this.title + "\" by " + this.authors.toString();
+    }
+
+    public Set<Genre> getGenre() {
+        return this.genre;
     }
 
     public String getTitle() {
@@ -49,12 +59,12 @@ public abstract class Document {
         return this.id;
     }
 
-    public static int getNb_documents() {
-        return nb_documents;
+    public Set<Author> getAuthors() {
+        return this.authors;
     }
 
-    public void setType(Set<Type> type) {
-        this.type = type;
+    public void setGenre(Set<Genre> genre) {
+        this.genre = genre;
     }
 
     public void setTitle(String title) {
