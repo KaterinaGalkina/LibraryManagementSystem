@@ -1,4 +1,4 @@
-package documents;
+package com.library.documents;
 
 public class Magazine{
     private int magazine_id;

@@ -1,8 +1,8 @@
-package documents;
+package com.library.documents;
 
 import java.util.Set;
 
-import people.Author;
+import com.library.people.Author;
 
 public class Book extends Document {
     private String isbn;

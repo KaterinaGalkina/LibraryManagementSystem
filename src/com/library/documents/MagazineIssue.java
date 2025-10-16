@@ -1,9 +1,9 @@
-package documents;
+package com.library.documents;
 
 import java.time.LocalDate;
 import java.util.Set;
 
-import people.Author;
+import com.library.people.Author;
 
 public class MagazineIssue extends Document{
     private int issue_number;

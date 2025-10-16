@@ -1,7 +1,7 @@
-package documents;
+package com.library.documents;
 import java.util.Set;
 
-import people.Author;
+import com.library.people.Author;
 
 public abstract class Document {
     private int id;

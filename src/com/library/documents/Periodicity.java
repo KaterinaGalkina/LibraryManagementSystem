@@ -1,4 +1,4 @@
-package documents;
+package com.library.documents;
 
 public enum Periodicity {
     DAILY,

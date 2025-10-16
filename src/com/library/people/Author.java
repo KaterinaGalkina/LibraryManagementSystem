@@ -1,10 +1,10 @@
-package people;
+package com.library.people;
 
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-import documents.Document;
+import com.library.documents.Document;
 
 public class Author extends Person {
     Set<Document> written_documents;

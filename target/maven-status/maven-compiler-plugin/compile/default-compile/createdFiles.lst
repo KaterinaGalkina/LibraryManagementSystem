@@ -1,0 +1,13 @@
+com/library/people/Person.class
+com/library/documents/Document.class
+com/library/documents/Magazine.class
+com/library/documents/Genre.class
+com/library/people/Author.class
+com/library/documents/Book.class
+com/library/MainApplication.class
+com/library/documents/MagazineIssue.class
+com/library/borrowingsystem/Borrowing.class
+com/library/borrowingsystem/LibraryManager.class
+com/library/documents/Genre$1.class
+com/library/people/Member.class
+com/library/documents/Periodicity.class

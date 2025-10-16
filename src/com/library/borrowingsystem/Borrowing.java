@@ -1,9 +1,9 @@
-package borrowingsystem;
+package com.library.borrowingsystem;
 
 import java.time.LocalDate;
 
-import documents.Document;
-import people.Member;
+import com.library.documents.Document;
+import com.library.people.Member;
 
 public class Borrowing {
     private int id_borrowing;
