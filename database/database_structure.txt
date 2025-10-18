@@ -85,7 +85,8 @@ CREATE TABLE members (
     penalty_status BOOLEAN DEFAULT 0,
     phone_number TEXT,
     address TEXT,
-    mail TEXT,
+    mail TEXT UNIQUE,
+    password TEXT NOT NULL,
     FOREIGN KEY (id) REFERENCES people(id) ON DELETE CASCADE
 );
 

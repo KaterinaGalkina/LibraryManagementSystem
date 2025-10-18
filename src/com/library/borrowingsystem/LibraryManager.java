@@ -581,7 +581,52 @@ public class LibraryManager {
         return false;
     }
 
-    public static boolean add_member(Connection conn, Member new_member){
+    public static boolean update_member(Connection conn, Member member, String new_password){ // If we don't want to change the password: new_password = null otherwise it is already hashed
+        try {
+            // First we are checking whether this member exists
+            String checkQuery = "SELECT id FROM members WHERE id = ?";
+            PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
+            checkStmt.setInt(1, member.getId());
+            ResultSet rs = checkStmt.executeQuery();
+            if (!rs.next()) {
+                System.out.println("Error: member not found in the database");
+                return false;
+            }
+
+            String update_people = "UPDATE people SET first_name = ?, last_name = ?, birth_date = ? WHERE id = ?";
+            String update_members = new_password == null
+                ? "UPDATE members SET penalty_status = ?, phone_number = ?, address = ?, mail = ? WHERE id = ?"
+                : "UPDATE members SET penalty_status = ?, phone_number = ?, address = ?, mail = ?, password = ? WHERE id = ?";
+
+            PreparedStatement pstmt_people = conn.prepareStatement(update_people);
+            pstmt_people.setString(1, member.getFirst_name());
+            pstmt_people.setString(2, member.getLast_name());
+            pstmt_people.setString(3, member.getBirth_date().toString());
+            pstmt_people.setInt(4, member.getId());
+            pstmt_people.executeUpdate();
+
+            PreparedStatement pstmt_members = conn.prepareStatement(update_members);
+            pstmt_members.setInt(1, member.getPenalty_status() ? 1 : 0);
+            pstmt_members.setString(2, member.getPhone_number());
+            pstmt_members.setString(3, member.getAddress());
+            pstmt_members.setString(4, member.getMail());
+
+            if (new_password == null) {
+                pstmt_members.setInt(5, member.getId());
+            } else {
+                pstmt_members.setString(5, new_password);
+                pstmt_members.setInt(6, member.getId());
+            }
+
+            pstmt_members.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean add_member(Connection conn, Member new_member, String password){
         try {
             // First we are checking whether this member aleady exists
             Statement stmt = conn.createStatement();
@@ -602,13 +647,14 @@ public class LibraryManager {
             pstmt_people_insertion.executeUpdate();
 
             // Insertion into members table
-            String sql_members = "INSERT INTO members (id, penalty_status, phone_number, address, mail) VALUES (?, ?, ?, ?, ?)";
+            String sql_members = "INSERT INTO members (id, penalty_status, phone_number, address, mail, password) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(sql_members);
             pstmt.setInt(1, new_member.getId());
             pstmt.setInt(2, new_member.getPenalty_status() ? 1 : 0);
             pstmt.setString(3, new_member.getPhone_number());
             pstmt.setString(4, new_member.getAddress());
             pstmt.setString(5, new_member.getMail());
+            pstmt.setString(6, password);
             pstmt.executeUpdate();
             return true;
 

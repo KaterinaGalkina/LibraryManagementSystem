@@ -23,7 +23,7 @@ public abstract class Person {
         this.first_name = first_name;
         this.last_name = last_name;
         this.birth_date = birth_date;
-        if (next_id < id){ // We are taking the largest one, so that there are no duplicates
+        if (next_id <= id){ // We are taking the largest one, so that there are no duplicates
             next_id = id + 1;
         } 
     }
