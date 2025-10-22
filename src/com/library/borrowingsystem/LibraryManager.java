@@ -19,6 +19,7 @@ import com.library.documents.Periodicity;
 import com.library.documents.Genre;
 import com.library.people.Author;
 import com.library.people.Member;
+import com.library.ui.ApplicationFX;
 
 public class LibraryManager {
 
@@ -296,6 +297,8 @@ public class LibraryManager {
             }
 
             pstmt.executeUpdate();
+
+            ApplicationFX.refreshAll();
             return true;
 
         } catch (SQLException e) {
@@ -322,6 +325,8 @@ public class LibraryManager {
             pstmt.setInt(2, borrowing.getId_borrowing());
 
             pstmt.executeUpdate();
+
+            ApplicationFX.refreshAll();
             return true;
 
         } catch (SQLException e) {
@@ -351,6 +356,8 @@ public class LibraryManager {
             pstmt.setString(2, new_magazine.getMagazine_title());
             pstmt.setString(3, Periodicity.convertPeriodicityToString(new_magazine.getPeriodicity()));
             pstmt.executeUpdate();
+
+            ApplicationFX.refreshAll();
             return true;
 
         } catch (SQLException e) {
@@ -379,7 +386,7 @@ public class LibraryManager {
             stmt2 = conn.createStatement();
             stmt2.executeUpdate(sql_magazine_deletion); 
 
-           
+            ApplicationFX.refreshAll();
             return true;
 
         } catch (SQLException e) {
@@ -437,6 +444,8 @@ public class LibraryManager {
             pstmt2.setInt(3, new_book.getNb_pages());
             pstmt2.setInt(4, new_book.getYear());
             pstmt2.executeUpdate();
+
+            ApplicationFX.refreshAll();
             return true;    
         } catch (SQLException e) {
             e.printStackTrace();        
@@ -460,6 +469,7 @@ public class LibraryManager {
             Statement stmt2 = conn.createStatement();
             stmt2.executeUpdate(sql_document_deletion); 
            
+            ApplicationFX.refreshAll();
             return true;  
         }catch(SQLException e){
             e.printStackTrace();
@@ -516,6 +526,8 @@ public class LibraryManager {
             pstmt2.setInt(3, new_magazine_issue.getIssue_number());
             pstmt2.setString(4, new_magazine_issue.getIssue_date().toString());
             pstmt2.executeUpdate();
+
+            ApplicationFX.refreshAll();
             return true;    
         } catch (SQLException e) {
             e.printStackTrace();        
@@ -552,6 +564,8 @@ public class LibraryManager {
                 stmt2.executeUpdate(sql_magazine_deletion);
             
             }
+
+            ApplicationFX.refreshAll();
             return true;
 
         } catch (SQLException e) {
@@ -619,6 +633,8 @@ public class LibraryManager {
             }
 
             pstmt_members.executeUpdate();
+
+            ApplicationFX.refreshAll();
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -656,6 +672,8 @@ public class LibraryManager {
             pstmt.setString(5, new_member.getMail());
             pstmt.setString(6, password);
             pstmt.executeUpdate();
+
+            ApplicationFX.refreshAll();
             return true;
 
         } catch (SQLException e) {
@@ -676,6 +694,8 @@ public class LibraryManager {
 
             Statement stmt2 = conn.createStatement();
             stmt2.executeUpdate("DELETE FROM people WHERE id = " + member_to_remove.getId() + ";");
+            
+            ApplicationFX.refreshAll();
             return true;
 
         }catch(SQLException e){
@@ -703,6 +723,7 @@ public class LibraryManager {
             pstmt.setString(4, new_author.getBirth_date().toString());
             pstmt.executeUpdate();
 
+            ApplicationFX.refreshAll();
             return true;
 
         } catch (SQLException e) {
@@ -723,6 +744,8 @@ public class LibraryManager {
 
             Statement stmt2 = conn.createStatement();
             stmt2.executeUpdate("DELETE FROM people WHERE id = " + author_to_remove.getId() + ";");
+            
+            ApplicationFX.refreshAll();
             return true;
 
 

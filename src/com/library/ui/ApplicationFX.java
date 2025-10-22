@@ -44,11 +44,7 @@ public class ApplicationFX extends Application {
             st.close();
 
             // We are retrieving all the information from the database
-            ApplicationFX.authors = LibraryManager.get_authors(conn);
-            ApplicationFX.members = LibraryManager.get_members(conn);
-            ApplicationFX.magazines = LibraryManager.get_magazines(conn);
-            ApplicationFX.documents = LibraryManager.get_documents(conn, authors, magazines); 
-            ApplicationFX.borrowings = LibraryManager.get_borrowings(conn, members, documents);
+            refreshAll();
 
             LoginView loginView = new LoginView();
             GridPane loginGrid = loginView.start(primaryStage, conn); // returns the form grid
@@ -72,7 +68,21 @@ public class ApplicationFX extends Application {
             e.printStackTrace();
         }
     }
+    
+    public static void refreshAll(){
+        try{
+            // We are retrieving all the information from the database
+            ApplicationFX.authors = LibraryManager.get_authors(conn);
+            ApplicationFX.members = LibraryManager.get_members(conn);
+            ApplicationFX.magazines = LibraryManager.get_magazines(conn);
+            ApplicationFX.documents = LibraryManager.get_documents(conn, authors, magazines); 
+            ApplicationFX.borrowings = LibraryManager.get_borrowings(conn, members, documents);
 
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        
+    }
     public static ArrayList<Author> getAuthors() {
         return ApplicationFX.authors;
     }
