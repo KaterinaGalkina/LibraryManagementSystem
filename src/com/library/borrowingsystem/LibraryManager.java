@@ -280,11 +280,23 @@ public class LibraryManager {
     }
 
     public static boolean create_borrowing(Connection conn, Borrowing new_borrowing) {
-        String sql = "INSERT INTO borrowings (id, document_id, person_id, start_date, expected_end_date, real_end_date) VALUES (?, ?, ?, ?, ?, ?)";
+        String checkCopies = "SELECT nb_copies FROM documents WHERE id = ?";
+        String insertBorrowing = "INSERT INTO borrowings (id, document_id, person_id, start_date, expected_end_date, real_end_date) VALUES (?, ?, ?, ?, ?, ?)";
+        String updateCopies = "UPDATE documents SET nb_copies = nb_copies - 1 WHERE id = ?";
 
         try {
-            // we can borrow the same document if possible, so we don't check if it already exists
-            PreparedStatement pstmt = conn.prepareStatement(sql);
+            //  Vérifier s’il reste des exemplaires disponibles
+            PreparedStatement checkStmt = conn.prepareStatement(checkCopies);
+            checkStmt.setInt(1, new_borrowing.getDocument().getId());
+            ResultSet rs = checkStmt.executeQuery();
+
+            if (!rs.next() || rs.getInt("nb_copies") <= 0) {
+                System.out.println("No copies available for this document.");
+                return false;
+            }
+
+            //  Insérer le nouvel emprunt
+            PreparedStatement pstmt = conn.prepareStatement(insertBorrowing);
             pstmt.setInt(1, new_borrowing.getId_borrowing());
             pstmt.setInt(2, new_borrowing.getDocument().getId());
             pstmt.setInt(3, new_borrowing.getMember().getId());
@@ -295,9 +307,14 @@ public class LibraryManager {
             } else {
                 pstmt.setNull(6, java.sql.Types.DATE);
             }
-
             pstmt.executeUpdate();
 
+            //  Décrémenter le nombre de copies
+            PreparedStatement psCopies = conn.prepareStatement(updateCopies);
+            psCopies.setInt(1, new_borrowing.getDocument().getId());
+            psCopies.executeUpdate();
+
+            //  Recharger les données en mémoire
             ApplicationFX.refreshAll();
             return true;
 
@@ -309,6 +326,7 @@ public class LibraryManager {
 
     public static boolean finish_borrowing(Connection conn,Borrowing borrowing){ 
         String sql = "UPDATE borrowings SET real_end_date = ? WHERE id = ?";
+        String updateCopies = "UPDATE documents SET nb_copies = nb_copies + 1 WHERE id = ?";
 
         try {
             String sql_borrowing = "SELECT * FROM borrowings WHERE id = " + borrowing.getId_borrowing() + ";";
@@ -325,6 +343,11 @@ public class LibraryManager {
             pstmt.setInt(2, borrowing.getId_borrowing());
 
             pstmt.executeUpdate();
+
+            // nb_copies increment
+            PreparedStatement psCopies = conn.prepareStatement(updateCopies);
+            psCopies.setInt(1, borrowing.getDocument().getId());
+            psCopies.executeUpdate();
 
             ApplicationFX.refreshAll();
             return true;

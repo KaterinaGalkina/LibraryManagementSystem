@@ -11,7 +11,6 @@ import com.library.borrowingsystem.LibraryManager;
 import com.library.documents.*;
 import com.library.people.*;
 import com.library.ui.login.*;
-import com.library.ui.menu.*;
 
 import javafx.application.Application;
 import javafx.scene.layout.GridPane;
@@ -77,6 +76,16 @@ public class ApplicationFX extends Application {
             ApplicationFX.magazines = LibraryManager.get_magazines(conn);
             ApplicationFX.documents = LibraryManager.get_documents(conn, authors, magazines); 
             ApplicationFX.borrowings = LibraryManager.get_borrowings(conn, members, documents);
+            
+            if(connected_member != null){
+                for(Member m : ApplicationFX.members){
+                    if(m.getId() == ApplicationFX.connected_member.getId()){
+                        ApplicationFX.setConnected_member(m);
+                        break;
+                    }
+                }
+            }
+            
 
         }catch(Exception e){
             e.printStackTrace();

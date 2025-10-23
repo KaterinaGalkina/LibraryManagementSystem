@@ -20,44 +20,45 @@ import com.library.ui.*;
 public class MainApplication {
     public static void main(String[] args) {
         
-        String url = "jdbc:sqlite:database/library_info.db"; 
+        // String url = "jdbc:sqlite:database/library_info.db"; 
         
 
         try {
-            Connection conn = DriverManager.getConnection(url);
             
-            if (conn != null) {
-                System.out.println("Connected to the database.");
-            } else {
-                System.out.println("Failed to connect to the database.");
-                return;
-            }
-            // Activation des FK de la database
-            var st = conn.createStatement();
-            st.execute("PRAGMA foreign_keys = ON");
-            st.close();
-
             ApplicationFX.ui(args);
+            // Connection conn = DriverManager.getConnection(url);
+            
+            // if (conn != null) {
+            //     System.out.println("Connected to the database.");
+            // } else {
+            //     System.out.println("Failed to connect to the database.");
+            //     return;
+            // }
+            // // Activation des FK de la database
+            // var st = conn.createStatement();
+            // st.execute("PRAGMA foreign_keys = ON");
+            // st.close();
 
-            // Member m1 = new Member("Kate", "Galkina", LocalDate.of(2004, 10, 10), "+330611879072", "121, rue de Bellevue", "ekaterina.galkina@outlook.com");
-            // LibraryManager.add_member(conn, m1, LoginView.hashPassword("SuperStrongPassword"));
-            // Member m2 = new Member("John", "Doe", LocalDate.of(1990, 5, 15), "+330612345678", "123, rue de Paris", "john@gmail.com");
+            
+            // // Member m1 = new Member("Kate", "Galkina", LocalDate.of(2004, 10, 10), "+330611879072", "121, rue de Bellevue", "ekaterina.galkina@outlook.com");
+            // // LibraryManager.add_member(conn, m1, LoginView.hashPassword("SuperStrongPassword"));
+            // // Member m2 = new Member("John", "Doe", LocalDate.of(1990, 5, 15), "+330612345678", "123, rue de Paris", "john@gmail.com");
 
-            // Author a1 = new Author("George", "Orwell", LocalDate.of(1903, 6, 25));
-            // Author a2 = new Author("Alison", "George", LocalDate.of(1988, 1, 3));
+            // // Author a1 = new Author("George", "Orwell", LocalDate.of(1903, 6, 25));
+            // // Author a2 = new Author("Alison", "George", LocalDate.of(1988, 1, 3));
             // Author a3 = new Author("Isaac", "Asimov", LocalDate.of(1920, 1, 2));
 
-            // Book b1 = new Book(new HashSet<>(Arrays.asList(Genre.SCIENCE_FICTION)), "Foundation", 1, new HashSet<>(Arrays.asList(a3)), "9780553293357", 255, 1951);
-            // Book b2 = new Book(new HashSet<>(Arrays.asList(Genre.FICTION)), "Animal Farm", 2, new HashSet<>(Arrays.asList(a1)), "9780194267533", 176, 1945);
-            // Book b3 = new Book(new HashSet<>(Arrays.asList(Genre.ROMANCE, Genre.LITERATURE)), "The Hunger Games", 3, new HashSet<>(Arrays.asList(a2)), "9780439023528", 374, 2008);
+            // //Book b1 = new Book(new HashSet<>(Arrays.asList(Genre.SCIENCE_FICTION)), "Foundation", 1, new HashSet<>(Arrays.asList(a3)), "9780553293357", 255, 1951);
+            //Book b2 = new Book(new HashSet<>(Arrays.asList(Genre.FICTION)), "Animal Farm", 2, new HashSet<>(Arrays.asList(a1)), "9780194267533", 176, 1945);
+            //Book b3 = new Book(new HashSet<>(Arrays.asList(Genre.ROMANCE, Genre.LITERATURE)), "The Hunger Games", 3, new HashSet<>(Arrays.asList(a2)), "9780439023528", 374, 2008);
 
-            // Magazine magazine1 = new Magazine("New Scientist", Periodicity.WEEKLY);
-            // Magazine magazine2 = new Magazine("Time", Periodicity.WEEKLY);
-            // Magazine magazine3 = new Magazine("National Geographic", Periodicity.MONTHLY);
+            //  Magazine magazine1 = new Magazine("New Scientist", Periodicity.WEEKLY);
+            //  Magazine magazine2 = new Magazine("Time", Periodicity.WEEKLY);
+            //  Magazine magazine3 = new Magazine("National Geographic", Periodicity.MONTHLY);
 
-            // MagazineIssue magazineIssue1 = new MagazineIssue(new HashSet<>(Arrays.asList(Genre.SCIENCE_FICTION)), "Science fiction special: The future of a genre", 3, new HashSet<>(Arrays.asList(a2)), 875, LocalDate.of(2008, 11, 12), magazine1);
-            // MagazineIssue magazineIssue2 = new MagazineIssue(new HashSet<>(Arrays.asList(Genre.SCIENCE)), "The science of climate change", 5, new HashSet<>(Arrays.asList(a3)), 1023, LocalDate.of(2020, 6, 1), magazine2);
-            // MagazineIssue magazineIssue3 = new MagazineIssue(new HashSet<>(Arrays.asList(Genre.ENVIRONMENT)), "Exploring the Amazon rainforest", 2, new HashSet<>(Arrays.asList(a1)), 678, LocalDate.of(2019, 9, 15), magazine3);
+            // MagazineIssue magazineIssue1 = new MagazineIssue(new HashSet<>(Arrays.asList(Genre.SCIENCE_FICTION)), "Science fiction special: The future of a genre", 3,3, new HashSet<>(Arrays.asList(a2)), 875, LocalDate.of(2008, 11, 12), magazine1);
+            // MagazineIssue magazineIssue2 = new MagazineIssue(new HashSet<>(Arrays.asList(Genre.SCIENCE)), "The science of climate change", 5,4, new HashSet<>(Arrays.asList(a3)), 1023, LocalDate.of(2020, 6, 1), magazine2);
+            // MagazineIssue magazineIssue3 = new MagazineIssue(new HashSet<>(Arrays.asList(Genre.ENVIRONMENT)), "Exploring the Amazon rainforest", 2,5, new HashSet<>(Arrays.asList(a1)), 678, LocalDate.of(2019, 9, 15), magazine3);
 
             // Borrowing borrowing1 = new Borrowing(b1,m1,LocalDate.of(2023, 10, 1), LocalDate.of(2023, 10, 15));
             // Borrowing borrowing2 = new Borrowing(magazineIssue1,m2,LocalDate.of(2023, 9, 20));
@@ -65,7 +66,7 @@ public class MainApplication {
             // Borrowing borrowing4 = new Borrowing(b2,m1,LocalDate.of(2023, 10, 20), LocalDate.of(2023, 11, 10));
 
             // ArrayList<Author> authors = new ArrayList<>(); 
-            // ArrayList<Member> members = new ArrayList<>();
+            //ArrayList<Member> members = new ArrayList<>();
             // ArrayList<Magazine> magazines =new ArrayList<>(); 
             // ArrayList<Document> documents = new ArrayList<>(); 
             // HashMap<Member,HashSet<Borrowing>> borrowings = new HashMap<>();
@@ -78,16 +79,15 @@ public class MainApplication {
             // members.add(m2);
             
             // authors.add(a1);
-            // authors.add(a2);
-            // authors.add(a3);
+            //authors.add(a2);
+            //authors.add(a3);
 
-            // documents.add(magazineIssue1);
-            // documents.add(magazineIssue2);
-            // documents.add(magazineIssue3);
-            // documents.add(b2);
-            // documents.add(b3);
-            // documents.add(b1);
-
+            //  documents.add(magazineIssue1);
+            //  documents.add(magazineIssue2);
+            //  documents.add(magazineIssue3);
+            //documents.add(b2);
+            //documents.add(b3);
+            //documents.add(b1);
             // borrowings.put(m1, new HashSet<>(Arrays.asList(borrowing1, borrowing3, borrowing4)));
             // borrowings.put(m2, new HashSet<>(Arrays.asList(borrowing2)));
             
@@ -98,9 +98,10 @@ public class MainApplication {
             //     LibraryManager.add_magazine(conn, m);
             // }
             // for(Document d: documents){ 
-            //     LibraryManager.add_document(conn, d);
+            //    LibraryManager.add_document(conn, d);
             // }
-
+            
+            
             // for(Member m: borrowings.keySet()){
             //     for(Borrowing b: borrowings.get(m)){
             //         LibraryManager.create_borrowing(conn, b);
@@ -226,8 +227,8 @@ public class MainApplication {
         //         System.out.println("\t" + d.toString());
         //     }
 
-            conn.close();
-            System.out.println("Disconnected from the database.");  
+            // conn.close();
+            // System.out.println("Disconnected from the database.");  
             
 
         } catch (Exception e) {
