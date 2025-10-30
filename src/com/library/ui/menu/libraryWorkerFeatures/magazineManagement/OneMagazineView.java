@@ -58,10 +58,10 @@ public class OneMagazineView {
 
         // --- Buttons ---
         Button save_button = new Button("Save");
-        save_button.setStyle("-fx-background-color: #129459ff; -fx-text-fill: white; -fx-background-radius: 8;");
+        save_button.setStyle("-fx-background-color: #253721; -fx-text-fill: white; -fx-background-radius: 8;");
 
         Button cancel_button = new Button("Cancel");
-        cancel_button.setStyle("-fx-background-color: #d63031; -fx-text-fill: white; -fx-background-radius: 8;");
+        cancel_button.setStyle("-fx-background-color: #7b1d26; -fx-text-fill: white; -fx-background-radius: 8;");
 
         this.buttons = new HBox(10, save_button, cancel_button);
         buttons.setAlignment(Pos.CENTER);

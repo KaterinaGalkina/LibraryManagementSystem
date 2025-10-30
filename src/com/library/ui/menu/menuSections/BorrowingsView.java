@@ -33,7 +33,7 @@ public class BorrowingsView {
         root.setPadding(new Insets(20));
 
         // --- Title ---
-        Label title = new Label("📚 Borrowings");
+        Label title = new Label("My Borrowings");
         title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
         // --- Borrowings list ---

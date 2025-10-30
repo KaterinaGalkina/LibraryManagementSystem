@@ -125,7 +125,7 @@ public abstract class OneDocumentView {
 
         // --- Buttons ---
         Button add_author_button = new Button("+ Add Author");
-        add_author_button.setStyle("-fx-background-color: #74b9ff; -fx-text-fill: white; -fx-background-radius: 8;");
+        add_author_button.setStyle("-fx-background-color: #024d60; -fx-text-fill: white; -fx-background-radius: 8;");
 
         Button find_author_button = new Button("Find existing Author");
         find_author_button.setStyle("-fx-background-color: #106e1aff; -fx-text-fill: white; -fx-background-radius: 8;");
@@ -170,7 +170,7 @@ public abstract class OneDocumentView {
 
             Button remove_author_button = new Button("✕");
             remove_author_button.setStyle(
-                "-fx-background-color: #d63031; -fx-text-fill: white; -fx-background-radius: 50%; -fx-min-width: 25; -fx-min-height: 25;"
+                "-fx-background-color: #7b1d26; -fx-text-fill: white; -fx-background-radius: 50%; -fx-min-width: 25; -fx-min-height: 25;"
             );
             remove_author_button.setOnAction(ev -> authors_container.getChildren().remove(grid_author));
 
@@ -304,10 +304,10 @@ public abstract class OneDocumentView {
         }
         // --- Buttons ---
         Button save_button = new Button("Save");
-        save_button.setStyle("-fx-background-color: #129459ff; -fx-text-fill: white; -fx-background-radius: 8;");
+        save_button.setStyle("-fx-background-color: #253721; -fx-text-fill: white; -fx-background-radius: 8;");
 
         Button cancel_button = new Button("Cancel");
-        cancel_button.setStyle("-fx-background-color: #d63031; -fx-text-fill: white; -fx-background-radius: 8;");
+        cancel_button.setStyle("-fx-background-color: #7b1d26; -fx-text-fill: white; -fx-background-radius: 8;");
 
         this.buttons = new HBox(10, save_button, cancel_button);
         buttons.setAlignment(Pos.CENTER);

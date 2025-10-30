@@ -31,7 +31,7 @@ public class MenuView {
     public void start(Stage stage, Connection conn) {
         // --- Menu container with BorderPane (for fixed bottom section) ---
         BorderPane menuContainer = new BorderPane();
-        menuContainer.setStyle("-fx-background-color: #06402B;");
+        menuContainer.setStyle("-fx-background-color: #0c2521;");
 
         // --- VBox for menu items (center of the menu) ---
         VBox menuItemsBox = new VBox(20);
@@ -39,7 +39,7 @@ public class MenuView {
         menuItemsBox.setPadding(new Insets(30));
 
         // --- Example static menu sections ---
-        Label title = new Label("📚 Library Menu");
+        Label title = new Label("Library Menu");
         title.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: white;");
 
         Label home = new Label("Home");

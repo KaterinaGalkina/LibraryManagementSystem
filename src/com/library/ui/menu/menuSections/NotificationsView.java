@@ -53,7 +53,7 @@ public class NotificationsView {
 
     public ScrollPane start(Connection conn) {
         // --- Header bar with filter ---
-        Label label = new Label("📚 Notifications Section");
+        Label label = new Label("My Notifications");
         label.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
         ComboBox<String> filterBox = new ComboBox<>();
@@ -119,7 +119,7 @@ public class NotificationsView {
             // --- Show message if none ---
             notificationsContainer.getChildren().removeIf(node -> node instanceof Label);
             if (gridNotifications.getChildren().isEmpty()) {
-                Label empty = new Label("✅ No current notifications.");
+                Label empty = new Label("No current notifications.");
                 empty.setStyle("-fx-text-fill: #555; -fx-font-style: italic; -fx-font-size: 16px;");
                 notificationsContainer.getChildren().add(empty);
             }

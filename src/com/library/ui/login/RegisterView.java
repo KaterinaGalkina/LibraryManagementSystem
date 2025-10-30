@@ -52,12 +52,35 @@ public class RegisterView {
 
         Label message = new Label();
         Button registerButton = new Button("Register");
+        registerButton.setStyle(
+            "-fx-background-color: #2c4237; " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: bold; " +
+            "-fx-cursor: hand; " +
+            "-fx-background-radius: 5;"
+        );
+
         Button backButton = new Button("Back to Login");
+        backButton.setStyle(
+            "-fx-background-color: #304544; " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: bold; " +
+            "-fx-cursor: hand; " +
+            "-fx-background-radius: 5;"
+        );
 
         Label infoLabel2 = new Label("Prefer to do it later?");
         infoLabel2.setStyle("-fx-text-fill: gray;");
 
         Button login_as_guest_button = new Button("Login as guest");
+
+        login_as_guest_button.setStyle(
+            "-fx-background-color: #024d60; " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: bold; " +
+            "-fx-cursor: hand; " +
+            "-fx-background-radius: 5;"
+        );
 
         // --- Layout setup ---
         GridPane grid = new GridPane();

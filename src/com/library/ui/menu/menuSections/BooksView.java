@@ -45,7 +45,7 @@ public class BooksView {
         root.setStyle("-fx-background-color: white;");
 
         // --- Title ---
-        Label title = new Label("📚 Books Section");
+        Label title = new Label("Books Section");
         title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2d3436;");
 
         // --- Search field ---
@@ -77,7 +77,7 @@ public class BooksView {
         if (ApplicationFX.getConnected_member() != null && ApplicationFX.getConnected_member().getIs_library_worker()){
             Button add_book_button = new Button("Add New Book");
             add_book_button.setStyle(
-                "-fx-background-color: #129459ff; " +
+                "-fx-background-color: #2c4237; " +
                 "-fx-text-fill: white; " +
                 "-fx-font-weight: bold; " +
                 "-fx-cursor: hand; " +
@@ -89,13 +89,6 @@ public class BooksView {
                 addBookView.show_add_document_window(conn, Book.class);
                 refreshBooksList(conn);
             });
-
-            add_book_button.setOnMouseEntered(e -> add_book_button.setStyle(
-                "-fx-background-color: #0d4e29ff; -fx-text-fill: white; -fx-cursor: hand;"
-            ));
-            add_book_button.setOnMouseExited(e -> add_book_button.setStyle(
-                "-fx-background-color: #129459ff; -fx-text-fill: white; -fx-cursor: hand;"
-            ));
 
             // create a spacer
             Region spacer = new Region();
@@ -182,7 +175,7 @@ public class BooksView {
 
         Button borrowButton = new Button("Borrow");
         borrowButton.setStyle(
-            "-fx-background-color: #129459ff; " +
+            "-fx-background-color: #2c4237; " +
             "-fx-text-fill: white; " +
             "-fx-font-weight: bold; " +
             "-fx-cursor: hand; " +
@@ -203,7 +196,7 @@ public class BooksView {
         if (ApplicationFX.getConnected_member() != null && ApplicationFX.getConnected_member().getIs_library_worker()){
             Button edit_book_button = new Button("Edit");
             edit_book_button.setStyle(
-                "-fx-background-color: #105c9bff; " +
+                "-fx-background-color: #75619d; " +
                 "-fx-text-fill: white; " +
                 "-fx-font-weight: bold; " +
                 "-fx-cursor: hand; " +
@@ -213,7 +206,7 @@ public class BooksView {
 
             Button delete_book_button = new Button("Delete");
             delete_book_button.setStyle(
-                "-fx-background-color: #b91313ff; " +
+                "-fx-background-color: #3a2d34; " +
                 "-fx-text-fill: white; " +
                 "-fx-font-weight: bold; " +
                 "-fx-cursor: hand; " +

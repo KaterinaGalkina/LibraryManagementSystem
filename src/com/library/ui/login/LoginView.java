@@ -37,6 +37,14 @@ public class LoginView {
         Label message = new Label();
         Button loginButton = new Button("Login");
 
+        loginButton.setStyle(
+            "-fx-background-color: #2c4237; " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: bold; " +
+            "-fx-cursor: hand; " +
+            "-fx-background-radius: 5;"
+        );
+
         Label infoLabel = new Label("Don't have an account?");
         infoLabel.setStyle("-fx-text-fill: gray;");
 
@@ -47,6 +55,13 @@ public class LoginView {
         infoLabel2.setStyle("-fx-text-fill: gray;");
 
         Button login_as_guest_button = new Button("Login as guest");
+        login_as_guest_button.setStyle(
+            "-fx-background-color: #024d60; " +
+            "-fx-text-fill: white; " +
+            "-fx-font-weight: bold; " +
+            "-fx-cursor: hand; " +
+            "-fx-background-radius: 5;"
+        );
 
         registerLink.setOnMouseClicked(e -> {
             new BaseView().start(stage, new RegisterView().start(stage, conn));

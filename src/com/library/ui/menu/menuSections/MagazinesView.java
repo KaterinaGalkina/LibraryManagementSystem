@@ -77,7 +77,7 @@ public class MagazinesView {
         if (ApplicationFX.getConnected_member() != null && ApplicationFX.getConnected_member().getIs_library_worker()){
             Button add_magazine_button = new Button("Add New Magazine");
             add_magazine_button.setStyle(
-                "-fx-background-color: #129459ff; " +
+                "-fx-background-color: #212c1b; " +
                 "-fx-text-fill: white; " +
                 "-fx-font-weight: bold; " +
                 "-fx-cursor: hand; " +
@@ -93,16 +93,9 @@ public class MagazinesView {
                 }
             });
 
-            add_magazine_button.setOnMouseEntered(e -> add_magazine_button.setStyle(
-                "-fx-background-color: #0d4e29ff; -fx-text-fill: white; -fx-cursor: hand;"
-            ));
-            add_magazine_button.setOnMouseExited(e -> add_magazine_button.setStyle(
-                "-fx-background-color: #129459ff; -fx-text-fill: white; -fx-cursor: hand;"
-            ));
-
             Button add_magazine_issue_button = new Button("Add New Issue");
             add_magazine_issue_button.setStyle(
-                "-fx-background-color: #4394afff; " +
+                "-fx-background-color: #17506a; " +
                 "-fx-text-fill: white; " +
                 "-fx-font-weight: bold; " +
                 "-fx-cursor: hand; " +
@@ -185,7 +178,7 @@ public class MagazinesView {
         periodicity.setStyle("-fx-font-size: 14px;");
 
         Button toggleBtn = new Button("Show issues");
-        toggleBtn.setStyle("-fx-background-color:#129459ff; -fx-text-fill:white; -fx-font-weight:bold; -fx-background-radius:6;");
+        toggleBtn.setStyle("-fx-background-color:#2c4237; -fx-text-fill:white; -fx-font-weight:bold; -fx-background-radius:6;");
 
         HBox buttonBox = new HBox(8); // space between buttons
         buttonBox.getChildren().add(toggleBtn);
@@ -196,7 +189,7 @@ public class MagazinesView {
             Button edit_magazine_button = new Button("Edit");
             edit_magazine_button.setPrefWidth(80);
             edit_magazine_button.setStyle(
-                "-fx-background-color:#105c9bff; " +
+                "-fx-background-color:#75619d; " +
                 "-fx-text-fill:white; " +
                 "-fx-font-weight:bold; " +
                 "-fx-background-radius:6;"
@@ -205,7 +198,7 @@ public class MagazinesView {
             Button delete_magazine_button = new Button("Delete");
             delete_magazine_button.setPrefWidth(80);
             delete_magazine_button.setStyle(
-                "-fx-background-color:#b91313ff; " +
+                "-fx-background-color:#3a2d34; " +
                 "-fx-text-fill:white; " +
                 "-fx-font-weight:bold; " +
                 "-fx-background-radius:6;"
@@ -323,7 +316,7 @@ public class MagazinesView {
 
         Button borrowBtn = new Button("Borrow");
         borrowBtn.setStyle(
-            "-fx-background-color: #129459ff; " +
+            "-fx-background-color: #2c4237; " +
             "-fx-text-fill: white; " +
             "-fx-font-weight: bold; " +
             "-fx-cursor: hand; " +
@@ -340,7 +333,7 @@ public class MagazinesView {
         if (ApplicationFX.getConnected_member() != null && ApplicationFX.getConnected_member().getIs_library_worker()){
             Button edit_button = new Button("Edit");
             edit_button.setStyle(
-                "-fx-background-color: #105c9bff; " +
+                "-fx-background-color: #75619d; " +
                 "-fx-text-fill: white; " +
                 "-fx-font-weight: bold; " +
                 "-fx-cursor: hand; " +
@@ -350,7 +343,7 @@ public class MagazinesView {
 
             Button delete_button = new Button("Delete");
             delete_button.setStyle(
-                "-fx-background-color: #b91313ff; " +
+                "-fx-background-color: #3a2d34; " +
                 "-fx-text-fill: white; " +
                 "-fx-font-weight: bold; " +
                 "-fx-cursor: hand; " +

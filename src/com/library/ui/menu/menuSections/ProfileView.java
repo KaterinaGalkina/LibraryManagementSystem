@@ -162,6 +162,9 @@ public class ProfileView {
         resetButton.setMaxWidth(Double.MAX_VALUE);
         saveButton.setMaxWidth(Double.MAX_VALUE);
 
+        resetButton.setStyle("-fx-background-color: #7b1d26; -fx-text-fill: white; -fx-background-radius: 8;");
+        saveButton.setStyle("-fx-background-color: #253721; -fx-text-fill: white; -fx-background-radius: 8;");
+
         // --- Keep track of original values ---
         update_original_values(connected_member, first_nameField, last_nameField, birth_datePicker, addressField, phoneField, mailField);
 
