@@ -2,14 +2,23 @@ package com.library.ui.menu;
 
 import java.sql.Connection;
 
+import com.library.ui.ApplicationFX;
 import com.library.ui.login.BaseView;
 import com.library.ui.login.LoginView;
+import com.library.ui.menu.menuSections.BooksView;
+import com.library.ui.menu.menuSections.BorrowingsView;
+import com.library.ui.menu.menuSections.HomeView;
+import com.library.ui.menu.menuSections.MagazinesView;
+import com.library.ui.menu.menuSections.MembersView;
+import com.library.ui.menu.menuSections.NotificationsView;
+import com.library.ui.menu.menuSections.ProfileView;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -45,8 +54,6 @@ public class MenuView {
             label.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-cursor: hand;");
         }
 
-        menuItemsBox.getChildren().addAll(title, home, profile, books, magazines, borrowings, notifications);
-
         // --- "Log out" button (fixed at bottom) ---
         Button logoutButton = new Button("Log out");
         logoutButton.setStyle(
@@ -74,7 +81,7 @@ public class MenuView {
         menuContainer.setBottom(logoutButton);
 
         // By default we are in home 
-        GridPane homeGrid = new HomeView().start(conn);
+        ScrollPane homeGrid = new HomeView().start(conn);
 
         // --- Right content area (3/4 width) ---
         StackPane contentArea = new StackPane();
@@ -88,10 +95,24 @@ public class MenuView {
         // --- Click behavior for each menu item ---
         home.setOnMouseClicked(e -> contentArea.getChildren().setAll(new HomeView().start(conn)));
         profile.setOnMouseClicked(e -> contentArea.getChildren().setAll(new ProfileView().start(conn)));
+        profile.setDisable(ApplicationFX.getConnected_member() == null); // If the member is connected as guest, he doesn't have a profile section
+
         books.setOnMouseClicked(e -> contentArea.getChildren().setAll(new BooksView().start(conn)));
         magazines.setOnMouseClicked(e -> contentArea.getChildren().setAll(new MagazinesView().start(conn)));
         borrowings.setOnMouseClicked(e -> contentArea.getChildren().setAll(new BorrowingsView().start(conn)));
+        borrowings.setDisable(ApplicationFX.getConnected_member() == null); // If the member is connected as guest, he doesn't have a borrowings section
+
         notifications.setOnMouseClicked(e -> contentArea.getChildren().setAll(new NotificationsView().start(conn)));
+        notifications.setDisable(ApplicationFX.getConnected_member() == null); // If the member is connected as guest, he doesn't have a notifications section
+
+        if (ApplicationFX.getConnected_member() != null && ApplicationFX.getConnected_member().getIs_library_worker()) {
+            Label members = new Label("Members");
+            members.setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-cursor: hand;");
+            menuItemsBox.getChildren().addAll(title, home, profile, books, magazines, borrowings, notifications, members);
+            members.setOnMouseClicked(e -> contentArea.getChildren().setAll(new MembersView().start(conn)));
+        } else {
+            menuItemsBox.getChildren().addAll(title, home, profile, books, magazines, borrowings, notifications);
+        }
 
         // --- Split layout (menu left, content right) ---
         HBox layout = new HBox();

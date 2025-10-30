@@ -1,6 +1,7 @@
-package com.library.ui.menu;
+package com.library.ui.menu.menuSections;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.sql.Connection;
 import java.time.LocalDate;
 
@@ -11,6 +12,8 @@ import com.library.documents.Document;
 import com.library.people.Member;
 
 import com.library.ui.ApplicationFX;
+import com.library.ui.menu.libraryWorkerFeatures.documentsManagement.booksManagement.AddBookView;
+import com.library.ui.menu.libraryWorkerFeatures.documentsManagement.booksManagement.EditBookView;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -19,8 +22,12 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
@@ -67,7 +74,42 @@ public class BooksView {
         statusLabel.setStyle("-fx-text-fill:#666; -fx-font-size: 13px;");
 
         // --- Assemble main layout ---
-        root.getChildren().addAll(title, searchField, listScroll, statusLabel);
+        if (ApplicationFX.getConnected_member() != null && ApplicationFX.getConnected_member().getIs_library_worker()){
+            Button add_book_button = new Button("Add New Book");
+            add_book_button.setStyle(
+                "-fx-background-color: #129459ff; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-weight: bold; " +
+                "-fx-cursor: hand; " +
+                "-fx-background-radius: 5;"
+            );
+
+            add_book_button.setOnAction(e -> {
+                AddBookView addBookView = new AddBookView();
+                addBookView.show_add_document_window(conn, Book.class);
+                refreshBooksList(conn);
+            });
+
+            add_book_button.setOnMouseEntered(e -> add_book_button.setStyle(
+                "-fx-background-color: #0d4e29ff; -fx-text-fill: white; -fx-cursor: hand;"
+            ));
+            add_book_button.setOnMouseExited(e -> add_book_button.setStyle(
+                "-fx-background-color: #129459ff; -fx-text-fill: white; -fx-cursor: hand;"
+            ));
+
+            // create a spacer
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+
+            // put everything together
+            HBox titleBox = new HBox(10, title, spacer, add_book_button);
+            titleBox.setAlignment(Pos.CENTER_LEFT);
+            titleBox.setPadding(new Insets(0, 0, 10, 0)); // some space below
+
+            root.getChildren().addAll(titleBox, searchField, listScroll, statusLabel);
+        } else {
+            root.getChildren().addAll(title, searchField, listScroll, statusLabel);
+        }
 
         // Initial load of books
         refreshBooksList(conn);
@@ -146,7 +188,7 @@ public class BooksView {
             "-fx-cursor: hand; " +
             "-fx-background-radius: 5;"
         );
-        
+        borrowButton.setPrefWidth(100);
         borrowButton.setDisable(book.getNb_copies() == 0); // Disable if no copies available
         borrowButton.setOnAction(e -> handleBorrowAction(conn, book));
 
@@ -157,6 +199,38 @@ public class BooksView {
         card.add(authors, 0, 2, 3, 1);
         card.add(genres, 0, 3, 3, 1);
         card.add(borrowButton, 0, 4);
+
+        if (ApplicationFX.getConnected_member() != null && ApplicationFX.getConnected_member().getIs_library_worker()){
+            Button edit_book_button = new Button("Edit");
+            edit_book_button.setStyle(
+                "-fx-background-color: #105c9bff; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-weight: bold; " +
+                "-fx-cursor: hand; " +
+                "-fx-background-radius: 5;"
+            );
+            edit_book_button.setPrefWidth(100);
+
+            Button delete_book_button = new Button("Delete");
+            delete_book_button.setStyle(
+                "-fx-background-color: #b91313ff; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-weight: bold; " +
+                "-fx-cursor: hand; " +
+                "-fx-background-radius: 5;"
+            );
+            delete_book_button.setPrefWidth(100);
+
+            edit_book_button.setOnAction(e -> {
+                EditBookView editBookView = new EditBookView();
+                editBookView.show_update_document_window(conn, book);
+                refreshBooksList(conn);
+            });
+            delete_book_button.setOnAction(e -> handleDeleteAction(conn, book));
+
+            card.add(edit_book_button, 1, 4);
+            card.add(delete_book_button, 2, 4);
+        }
 
         return card;
     }
@@ -171,13 +245,37 @@ public class BooksView {
 
         LocalDate start = LocalDate.now();
 
-        Borrowing borrowing = new Borrowing(book, member, start);
-        Boolean ok = LibraryManager.create_borrowing(conn, borrowing); // we already refreshall in the method
-        if(ok){
-            alert("Borrowing created successfully.");
-            refreshBooksList(conn);
-        }else{
+        int activeBorrowings = (int) ApplicationFX.getBorrowings()
+            .get(member)
+            .stream()
+            .filter(b -> b.getReal_return_date() == null)
+            .count();
+
+        if (activeBorrowings < 5){ // Only 5 borrowings at once
+            Borrowing borrowing = new Borrowing(book, member, start);
+            Boolean ok = LibraryManager.create_borrowing(conn, borrowing); // we already refreshall in the method
+            if(ok){
+                alert("Borrowing created successfully.");
+                refreshBooksList(conn);
+            }
+        } else{
             alert("Failed to create borrowing.");  
+        }
+    }
+
+    private void handleDeleteAction(Connection conn, Book book_to_delete){
+        Alert confirmation = new Alert(AlertType.CONFIRMATION);
+        confirmation.setHeaderText(null);
+        confirmation.setTitle("Confirm Deletion");
+        confirmation.setContentText("Are you sure you want to delete the book: \"" + book_to_delete.getTitle() + "\" ?");
+
+        Optional<ButtonType> result = confirmation.showAndWait();
+
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            // User confirmed deletion
+            LibraryManager.remove_document(conn, book_to_delete);
+            ApplicationFX.refreshAll();
+            refreshBooksList(conn);
         }
     }
 

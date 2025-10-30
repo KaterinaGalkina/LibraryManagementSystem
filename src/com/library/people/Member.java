@@ -7,7 +7,7 @@ public class Member extends Person {
     private String phone_number;
     private String address;
     private String mail;
-    private int number_borrowings;
+    private boolean is_library_worker;
 
     public Member(String first_name, String last_name, LocalDate birth_date, String phone_number, String address, String mail) {
         super(first_name, last_name, birth_date);
@@ -15,16 +15,16 @@ public class Member extends Person {
         this.phone_number = phone_number;
         this.address = address;
         this.mail = mail;
-        this.number_borrowings = 0;
+        this.is_library_worker = false;
     }
 
-    public Member(String first_name, String last_name, LocalDate birth_date, int id, boolean penalty_status, String phone_number, String address, String mail, int number_borrowings) {
+    public Member(String first_name, String last_name, LocalDate birth_date, int id, boolean penalty_status, String phone_number, String address, String mail, boolean is_library_worker) {
         super(id, first_name, last_name, birth_date);
         this.penalty_status = penalty_status; 
         this.phone_number = phone_number;
         this.address = address;
         this.mail = mail;
-        this.number_borrowings = number_borrowings;
+        this.is_library_worker = is_library_worker;
     }
 
     @Override
@@ -48,8 +48,8 @@ public class Member extends Person {
         return this.mail;
     }
 
-    public int getNumber_borrowings() {
-        return this.number_borrowings;
+    public boolean getIs_library_worker(){
+        return this.is_library_worker;
     }
 
     public void setPenalty_status(boolean penalty_status) {
@@ -68,7 +68,7 @@ public class Member extends Person {
         this.mail = mail;
     }
 
-    public void setNumber_borrowings(int number_borrowings) {
-        this.number_borrowings = number_borrowings;
+    public void setIs_library_worker(boolean is_library_worker) {
+        this.is_library_worker = is_library_worker;
     }
 }

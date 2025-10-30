@@ -1,4 +1,4 @@
-package com.library.ui.menu;
+package com.library.ui.menu.menuSections;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -172,7 +172,7 @@ public class ProfileView {
         green_glow.setOffsetY(0);
         green_glow.setRadius(10);
 
-         // --- Define green glow effect --- for fields that were modified and have an error
+        // --- Define red glow effect --- for fields that were modified and have an error
         DropShadow red_glow = new DropShadow();
         red_glow.setColor(Color.RED);
         red_glow.setOffsetX(0);

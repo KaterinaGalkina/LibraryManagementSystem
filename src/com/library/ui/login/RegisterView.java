@@ -7,6 +7,8 @@ import java.time.LocalDate;
 
 import com.library.borrowingsystem.LibraryManager;
 import com.library.people.Member;
+import com.library.ui.ApplicationFX;
+import com.library.ui.menu.MenuView;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -52,6 +54,11 @@ public class RegisterView {
         Button registerButton = new Button("Register");
         Button backButton = new Button("Back to Login");
 
+        Label infoLabel2 = new Label("Prefer to do it later?");
+        infoLabel2.setStyle("-fx-text-fill: gray;");
+
+        Button login_as_guest_button = new Button("Login as guest");
+
         // --- Layout setup ---
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
@@ -92,6 +99,9 @@ public class RegisterView {
         grid.add(message, 1, row++);
         grid.add(backButton, 1, row++);
 
+        grid.add(infoLabel2, 0, row);
+        grid.add(login_as_guest_button, 1, row++);
+
          // --- Center the title ---
         GridPane.setHalignment(titleLabel, javafx.geometry.HPos.CENTER);
         GridPane.setMargin(titleLabel, new Insets(0, 0, 10, 0));
@@ -99,6 +109,12 @@ public class RegisterView {
         // --- Optional styling ---
         registerButton.setMaxWidth(Double.MAX_VALUE);
         backButton.setMaxWidth(Double.MAX_VALUE);
+
+        login_as_guest_button.setOnAction(e -> {
+            ApplicationFX.setConnected_member(null);
+            stage.close();
+            new MenuView().start(stage, conn);
+        });
 
         // --- Register logic ---
         registerButton.setOnAction(e -> {

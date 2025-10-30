@@ -22,7 +22,6 @@ public class Borrowing {
         this.real_return_date = null;
         this.id_borrowing = next_id;
         next_id++;
-        member.setNumber_borrowings(member.getNumber_borrowings() + 1);
     }
 
     // return date by default
@@ -34,7 +33,6 @@ public class Borrowing {
         this.real_return_date = null;
         this.id_borrowing = next_id;
         next_id++;
-        member.setNumber_borrowings(member.getNumber_borrowings() + 1);
     }
 
     // We already have all the information, because it was in the database

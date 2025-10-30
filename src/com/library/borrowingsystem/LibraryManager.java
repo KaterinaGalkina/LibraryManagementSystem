@@ -23,7 +23,6 @@ import com.library.ui.ApplicationFX;
 
 public class LibraryManager {
 
-
     public static ArrayList<Author> get_authors(Connection conn){
         try {
             Statement stmt = conn.createStatement();
@@ -62,11 +61,7 @@ public class LibraryManager {
                 String phone_number = rs.getString("phone_number");
                 String address = rs.getString("address");
                 String mail = rs.getString("mail");
-
-                Statement stmt2 = conn.createStatement();
-                ResultSet rs2 = stmt2.executeQuery("SELECT COUNT(*) FROM borrowings WHERE person_id = " + rs.getInt("id") + " AND expected_end_date IS NULL;");
-
-                int nb_borrowings = rs2.getInt("COUNT(*)");
+                boolean is_library_worker = rs.getBoolean("is_library_worker");
 
                 members.add(
                     new Member(member_first_name, 
@@ -76,8 +71,8 @@ public class LibraryManager {
                     penalty_status, 
                     phone_number, 
                     address, 
-                    mail, 
-                    nb_borrowings)
+                    mail,
+                    is_library_worker)
                 );
             }
             return members;
@@ -107,6 +102,7 @@ public class LibraryManager {
             return null;
         }
     }
+    
     public static ArrayList<Book> get_books(Connection conn, ArrayList<Author> authors){ 
         try{
             Statement stmt = conn.createStatement();
@@ -168,6 +164,7 @@ public class LibraryManager {
             return null;
         }
     }
+    
     public static ArrayList<MagazineIssue> get_magazine_issues(Connection conn, ArrayList<Author> authors, ArrayList<Magazine> magazines){ 
         try {
             Statement stmt = conn.createStatement();
@@ -417,7 +414,6 @@ public class LibraryManager {
             return false;
         }
     }
-
     // depend de add_document
     public static boolean add_book(Connection conn, Book new_book){
         String sql = "INSERT INTO documents (id, title, nb_copies) VALUES (?, ?, ?)";
@@ -474,8 +470,183 @@ public class LibraryManager {
             e.printStackTrace();        
             return false;
         }
-        
     }
+    
+    public static boolean update_book(Connection conn, Book book_to_update){
+        try {
+            Statement stmt = conn.createStatement();
+
+            // Check whether a Document with this id does exist
+            ResultSet rs = stmt.executeQuery("SELECT * FROM documents WHERE id = " + book_to_update.getId() + ";");
+
+            if (!rs.next()) {
+                // rs.next() returns true if there is at least one row
+                System.out.println("Error: Impossible to update the document, it wasn't found in the database!");
+                return false;
+            }
+
+            String sql = "UPDATE documents SET title = ?, nb_copies = ? WHERE id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, book_to_update.getTitle());
+            pstmt.setInt(2, book_to_update.getNb_copies());
+            pstmt.setInt(3, book_to_update.getId());
+            pstmt.executeUpdate();
+
+            // First we remove all previously mentionned authors
+            String sql_authors = "DELETE FROM documents_authors WHERE document_id = ?";
+
+            PreparedStatement pstmt_authors = conn.prepareStatement(sql_authors);
+            pstmt_authors.setInt(1, book_to_update.getId());
+            pstmt_authors.executeUpdate();
+
+            // Then we repopulate the authors
+            for (Author author : book_to_update.getAuthors()) {
+                add_author(conn, author); // We add the author if he doesn't exist, if he exists it will just print an error message but it won't stop the execution
+                // Once the author is added, we can insert a line indicating that he wrote a document we are inserting
+                String sql_author_insertion = "INSERT INTO documents_authors (document_id, author_id) VALUES (?, ?)";
+
+                PreparedStatement pstmt_author_document_insertion = conn.prepareStatement(sql_author_insertion);
+                pstmt_author_document_insertion.setInt(1, book_to_update.getId());
+                pstmt_author_document_insertion.setInt(2, author.getId());
+                pstmt_author_document_insertion.executeUpdate();
+            }
+
+            // First we remove all previously mentionned genres
+            String sql_genres = "DELETE FROM document_genres WHERE document_id = ?";
+
+            PreparedStatement pstmt_genres = conn.prepareStatement(sql_genres);
+            pstmt_genres.setInt(1, book_to_update.getId());
+            pstmt_genres.executeUpdate();
+
+            // Then we repopulate the genres
+            for (Genre genre : book_to_update.getGenre()) {
+                String sql_genre_insertion = "INSERT INTO document_genres (document_id, genre) VALUES (?, ?)";
+                PreparedStatement pstmt2 = conn.prepareStatement(sql_genre_insertion);
+                pstmt2.setInt(1, book_to_update.getId());
+                pstmt2.setString(2, Genre.convertGenreToString(genre));
+                pstmt2.executeUpdate();
+            }
+
+            String sql2 = "UPDATE books SET isbn = ?, pages_number = ?, year = ? WHERE id = ?";
+
+            PreparedStatement pstmt2 = conn.prepareStatement(sql2);
+            pstmt2.setString(1, book_to_update.getIsbn());
+            pstmt2.setInt(2, book_to_update.getNb_pages());
+            pstmt2.setInt(3, book_to_update.getYear());
+            pstmt2.setInt(4, book_to_update.getId());
+            pstmt2.executeUpdate();
+
+            ApplicationFX.refreshAll();
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean update_magazine_issue(Connection conn, MagazineIssue magazine_issue_to_update){ 
+        try {
+            Statement stmt = conn.createStatement();
+
+            // Check whether a Document with this id does exist
+            ResultSet rs = stmt.executeQuery("SELECT * FROM documents WHERE id = " + magazine_issue_to_update.getId() + ";");
+
+            if (!rs.next()) {
+                // rs.next() returns true if there is at least one row
+                System.out.println("Error: Impossible to update the document, it wasn't found in the database!");
+                return false;
+            }
+
+            String sql = "UPDATE documents SET title = ?, nb_copies = ? WHERE id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, magazine_issue_to_update.getTitle());
+            pstmt.setInt(2, magazine_issue_to_update.getNb_copies());
+            pstmt.setInt(3, magazine_issue_to_update.getId());
+            pstmt.executeUpdate();
+
+            // First we remove all previously mentionned authors
+            String sql_authors = "DELETE FROM documents_authors WHERE document_id = ?";
+
+            PreparedStatement pstmt_authors = conn.prepareStatement(sql_authors);
+            pstmt_authors.setInt(1, magazine_issue_to_update.getId());
+            pstmt_authors.executeUpdate();
+
+            // Then we repopulate the authors
+            for (Author author : magazine_issue_to_update.getAuthors()) {
+                add_author(conn, author); // We add the author if he doesn't exist, if he exists it will just print an error message but it won't stop the execution
+                // Once the author is added, we can insert a line indicating that he wrote a document we are inserting
+                String sql_author_insertion = "INSERT INTO documents_authors (document_id, author_id) VALUES (?, ?)";
+
+                PreparedStatement pstmt_author_document_insertion = conn.prepareStatement(sql_author_insertion);
+                pstmt_author_document_insertion.setInt(1, magazine_issue_to_update.getId());
+                pstmt_author_document_insertion.setInt(2, author.getId());
+                pstmt_author_document_insertion.executeUpdate();
+            }
+
+            // First we remove all previously mentionned genres
+            String sql_genres = "DELETE FROM document_genres WHERE document_id = ?";
+
+            PreparedStatement pstmt_genres = conn.prepareStatement(sql_genres);
+            pstmt_genres.setInt(1, magazine_issue_to_update.getId());
+            pstmt_genres.executeUpdate();
+
+            // Then we repopulate the genres
+            for (Genre genre : magazine_issue_to_update.getGenre()) {
+                String sql_genre_insertion = "INSERT INTO document_genres (document_id, genre) VALUES (?, ?)";
+                PreparedStatement pstmt2 = conn.prepareStatement(sql_genre_insertion);
+                pstmt2.setInt(1, magazine_issue_to_update.getId());
+                pstmt2.setString(2, Genre.convertGenreToString(genre));
+                pstmt2.executeUpdate();
+            }
+
+            String sql2 = "UPDATE magazine_numbers SET magazine_id = ?, issue_number = ?, issue_date = ? WHERE id = ?";
+
+            PreparedStatement pstmt2 = conn.prepareStatement(sql2);
+            pstmt2.setInt(1, magazine_issue_to_update.getMagazine().getMagazine_id());
+            pstmt2.setInt(2, magazine_issue_to_update.getIssue_number());
+            pstmt2.setString(4, magazine_issue_to_update.getIssue_date().toString());
+            pstmt2.setInt(4, magazine_issue_to_update.getId());
+            pstmt2.executeUpdate();
+
+            ApplicationFX.refreshAll();
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean update_magazine(Connection conn, Magazine magazine_to_update){
+        try {
+            Statement stmt = conn.createStatement();
+
+            // Check whether a Magazine with this id does exist
+            ResultSet rs = stmt.executeQuery("SELECT * FROM magazines WHERE id = " + magazine_to_update.getMagazine_id() + ";");
+
+            if (!rs.next()) {
+                // rs.next() returns true if there is at least one row
+                System.out.println("Error: Impossible to update the magazine, it wasn't found in the database!");
+                return false;
+            }
+
+            String sql = "UPDATE magazines SET magazine_title = ?, periodicity = ? WHERE magazine_id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, magazine_to_update.getMagazine_id());
+            pstmt.setString(2, Periodicity.convertPeriodicityToString(magazine_to_update.getPeriodicity()));
+            pstmt.setInt(3, magazine_to_update.getMagazine_id());
+            pstmt.executeUpdate();
+
+            ApplicationFX.refreshAll();
+            return true;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public static boolean remove_book(Connection conn, Book book_to_remove){ 
 
         try{
@@ -499,7 +670,6 @@ public class LibraryManager {
             return false;
         }
     }
-
     // depend de add_document
     public static boolean add_magazine_issue(Connection conn, MagazineIssue new_magazine_issue){
         String sql = "INSERT INTO documents (id, title, nb_copies) VALUES (?, ?, ?)";
@@ -597,13 +767,22 @@ public class LibraryManager {
         }
     }
 
-    
     public static boolean add_document(Connection conn, Document new_document){ 
         if (new_document instanceof Book new_book) {
             return add_book(conn, new_book);
 
         } else if (new_document instanceof MagazineIssue new_magazine_issue) {
             return add_magazine_issue(conn, new_magazine_issue);
+        }
+        return false;
+    }
+
+    public static boolean update_document(Connection conn, Document document_to_update){ 
+        if (document_to_update instanceof Book book_to_update) {
+            return update_book(conn, book_to_update);
+
+        } else if (document_to_update instanceof MagazineIssue magazine_issue_to_update) {
+            return update_magazine_issue(conn, magazine_issue_to_update);
         }
         return false;
     }
@@ -616,6 +795,31 @@ public class LibraryManager {
             return remove_magazine_issue(conn, magazine_issue_to_remove);
         }
         return false;
+    }
+
+    public static boolean set_privileges_to_member(Connection conn, Member member) { // Refreshing the member's priviledges in the database
+        try {
+            // First we are checking whether this member exists
+            String checkQuery = "SELECT id FROM members WHERE id = ?";
+            PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
+            checkStmt.setInt(1, member.getId());
+            ResultSet rs = checkStmt.executeQuery();
+            if (!rs.next()) {
+                System.out.println("Error: member not found in the database");
+                return false;
+            }
+
+            String update_members = "UPDATE members SET is_library_worker = ? WHERE id = ?";
+
+            PreparedStatement pstmt_members = conn.prepareStatement(update_members);
+            pstmt_members.setInt(1, member.getIs_library_worker() ? 1 : 0);
+            pstmt_members.executeUpdate();
+            ApplicationFX.refreshAll();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public static boolean update_member(Connection conn, Member member, String new_password){ // If we don't want to change the password: new_password = null otherwise it is already hashed
@@ -754,9 +958,9 @@ public class LibraryManager {
             return false;
         }
     }
+    
     public static boolean remove_author(Connection conn, Author author_to_remove){ 
         try{
-
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM people WHERE id = "+ author_to_remove.getId()+";");
  
@@ -777,5 +981,4 @@ public class LibraryManager {
             return false;
         }
     }
-
 }

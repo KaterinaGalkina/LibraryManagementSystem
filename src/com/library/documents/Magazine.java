@@ -4,19 +4,22 @@ public class Magazine{
     private int magazine_id;
     private String magazine_title;
     private Periodicity periodicity;
-    private static int nb_magazines;
+    private static int next_magazine_id = 0;
 
     public Magazine(String magazine_title, Periodicity periodicity) {
-        this.magazine_id = nb_magazines;
+        this.magazine_id = next_magazine_id;
         this.magazine_title = magazine_title;
         this.periodicity = periodicity;
-        nb_magazines++;
+        next_magazine_id++;
     }
 
     public Magazine(int magazine_id, String magazine_title, Periodicity periodicity) {
         this.magazine_id = magazine_id;
         this.magazine_title = magazine_title;
         this.periodicity = periodicity;
+        if (next_magazine_id <= magazine_id){
+            next_magazine_id = magazine_id + 1;
+        }
     }
 
     @Override

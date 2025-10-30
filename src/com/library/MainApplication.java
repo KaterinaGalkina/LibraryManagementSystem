@@ -1,21 +1,5 @@
 package com.library;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-
-import com.library.borrowingsystem.*;
-import com.library.documents.*;
-import com.library.people.*;
 import com.library.ui.ApplicationFX;
-import com.library.ui.login.*;
-import com.library.ui.menu.*;
-import com.library.ui.*;
 
 public class MainApplication {
     public static void main(String[] args) {
@@ -24,7 +8,6 @@ public class MainApplication {
         
 
         try {
-            
             ApplicationFX.ui(args);
             // Connection conn = DriverManager.getConnection(url);
             

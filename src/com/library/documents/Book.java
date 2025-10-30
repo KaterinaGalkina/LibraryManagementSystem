@@ -34,5 +34,16 @@ public class Book extends Document {
     public int getYear() {
         return year;
     }
-    
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
+    public void setNb_pages(int nb_pages) {
+        this.nb_pages = nb_pages;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
 }

@@ -43,6 +43,11 @@ public class LoginView {
         Label registerLink = new Label("Register");
         registerLink.setStyle("-fx-text-fill: #000000; -fx-underline: true; -fx-cursor: hand;");
 
+        Label infoLabel2 = new Label("Prefer to do it later?");
+        infoLabel2.setStyle("-fx-text-fill: gray;");
+
+        Button login_as_guest_button = new Button("Login as guest");
+
         registerLink.setOnMouseClicked(e -> {
             new BaseView().start(stage, new RegisterView().start(stage, conn));
         });
@@ -63,6 +68,8 @@ public class LoginView {
         loginGrid.add(message, 1, row++);
         loginGrid.add(infoLabel, 0, row);
         loginGrid.add(registerLink, 1, row++);
+        loginGrid.add(infoLabel2, 0, row);
+        loginGrid.add(login_as_guest_button, 1, row++);
 
         // --- Center the title ---
         GridPane.setHalignment(titleLabel, javafx.geometry.HPos.CENTER);
@@ -83,6 +90,12 @@ public class LoginView {
             } else {
                 message.setText("❌ Invalid credentials");
             }
+        });
+
+        login_as_guest_button.setOnAction(e -> {
+            ApplicationFX.setConnected_member(null);
+            stage.close();
+            new MenuView().start(stage, conn);
         });
         return loginGrid;
     }

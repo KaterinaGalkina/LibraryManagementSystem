@@ -1,4 +1,4 @@
-package com.library.ui.menu;
+package com.library.ui.menu.menuSections;
 
 import java.sql.Connection;
 import java.time.LocalDate;
