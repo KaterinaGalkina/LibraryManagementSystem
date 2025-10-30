@@ -605,7 +605,7 @@ public class LibraryManager {
             PreparedStatement pstmt2 = conn.prepareStatement(sql2);
             pstmt2.setInt(1, magazine_issue_to_update.getMagazine().getMagazine_id());
             pstmt2.setInt(2, magazine_issue_to_update.getIssue_number());
-            pstmt2.setString(4, magazine_issue_to_update.getIssue_date().toString());
+            pstmt2.setString(3, magazine_issue_to_update.getIssue_date().toString());
             pstmt2.setInt(4, magazine_issue_to_update.getId());
             pstmt2.executeUpdate();
 
