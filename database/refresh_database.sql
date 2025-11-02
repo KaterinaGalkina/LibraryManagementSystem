@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS members (
     mail TEXT UNIQUE,
     password TEXT NOT NULL,
     is_library_worker BOOLEAN DEFAULT 0,
+    is_suspended BOOLEAN DEFAULT 0,
     FOREIGN KEY (id) REFERENCES people(id) ON DELETE CASCADE
 );
 
@@ -140,4 +141,5 @@ INSERT INTO magazine_numbers (id, magazine_id, issue_number, issue_date) VALUES
 (4, 1, 3, '2008-11-12'),
 (5, 2, 4, '2020-06-01'),
 (6, 3, 5, '2019-09-15');
+
 

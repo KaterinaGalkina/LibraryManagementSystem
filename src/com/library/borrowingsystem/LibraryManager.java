@@ -62,6 +62,7 @@ public class LibraryManager {
                 String address = rs.getString("address");
                 String mail = rs.getString("mail");
                 boolean is_library_worker = rs.getBoolean("is_library_worker");
+                boolean is_suspended = rs.getBoolean("is_suspended");
 
                 members.add(
                     new Member(member_first_name, 
@@ -72,7 +73,9 @@ public class LibraryManager {
                     phone_number, 
                     address, 
                     mail,
-                    is_library_worker)
+                    is_library_worker,
+                    is_suspended
+                    )
                 );
             }
             return members;
@@ -813,6 +816,32 @@ public class LibraryManager {
 
             PreparedStatement pstmt_members = conn.prepareStatement(update_members);
             pstmt_members.setInt(1, member.getIs_library_worker() ? 1 : 0);
+            pstmt_members.setInt(2, member.getId());
+            pstmt_members.executeUpdate();
+            ApplicationFX.refreshAll();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    public static boolean suspend_member(Connection conn, Member member) { // Suspending or reactivating a member in the database
+        try {
+            // First we are checking whether this member exists
+            String checkQuery = "SELECT id FROM members WHERE id = ?";
+            PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
+            checkStmt.setInt(1, member.getId());
+            ResultSet rs = checkStmt.executeQuery();
+            if (!rs.next()) {
+                System.out.println("Error: member not found in the database");
+                return false;
+            }
+
+            String update_members = "UPDATE members SET is_suspended = ? WHERE id = ?";
+
+            PreparedStatement pstmt_members = conn.prepareStatement(update_members);
+            pstmt_members.setInt(1, member.getIs_suspended() ? 1 : 0);
+            pstmt_members.setInt(2, member.getId());
             pstmt_members.executeUpdate();
             ApplicationFX.refreshAll();
             return true;

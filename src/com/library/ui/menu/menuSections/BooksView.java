@@ -9,6 +9,7 @@ import com.library.borrowingsystem.Borrowing;
 import com.library.borrowingsystem.LibraryManager;
 import com.library.documents.Book;
 import com.library.documents.Document;
+import com.library.documents.Genre;
 import com.library.people.Member;
 
 import com.library.ui.ApplicationFX;
@@ -28,12 +29,14 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
 
 public class BooksView {
     private TextField searchField; 
+    private ComboBox<String> filterBox;
     private VBox booksVBox;
     private Label statusLabel; // Number of displayed books
 
@@ -47,6 +50,11 @@ public class BooksView {
         // --- Title ---
         Label title = new Label("Books Section");
         title.setStyle("-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #2d3436;");
+        // --- Filter ComboBox ---
+        filterBox = new ComboBox<>();
+        filterBox.getItems().addAll("All","Genre","Author", "Year" , "ISBN" , "Title");
+        filterBox.setValue("All");
+        filterBox.setOnAction(e -> refreshBooksList(conn));
 
         // --- Search field ---
         searchField = new TextField();
@@ -59,6 +67,10 @@ public class BooksView {
             if (e.getCode() == KeyCode.ENTER || e.getText() != null)
                 refreshBooksList(conn);
         });
+        
+        HBox topBar = new HBox(20, searchField, filterBox);
+        topBar.setAlignment(Pos.CENTER);
+        topBar.setPadding(new Insets(20));
 
         // --- Books list ---
         booksVBox = new VBox(10);
@@ -99,9 +111,9 @@ public class BooksView {
             titleBox.setAlignment(Pos.CENTER_LEFT);
             titleBox.setPadding(new Insets(0, 0, 10, 0)); // some space below
 
-            root.getChildren().addAll(titleBox, searchField, listScroll, statusLabel);
+            root.getChildren().addAll(titleBox, topBar, listScroll, statusLabel);
         } else {
-            root.getChildren().addAll(title, searchField, listScroll, statusLabel);
+            root.getChildren().addAll(title, topBar, listScroll, statusLabel);
         }
 
         // Initial load of books
@@ -120,10 +132,40 @@ public class BooksView {
         booksVBox.getChildren().clear();
         String keyword = (searchField.getText() == null) ? "" : searchField.getText().trim().toLowerCase();
         ArrayList<Document> docs = ApplicationFX.getDocuments();
+        String filter = filterBox.getValue();
 
         int count = 0;
         for (Document d : docs) {
             if (d instanceof Book b) {
+                if(filter != null && !filter.equals("All")) {
+                    boolean matchesFilter = false;
+                    switch (filter) {
+                        case "Genre":
+                            matchesFilter = b.getGenre() != null && b.getGenre().stream().anyMatch(g -> 
+                                Genre.convertGenreToString(g).toLowerCase().contains(keyword)
+                            );
+                            break;
+                        case "Author":
+                            matchesFilter = b.getAuthors() != null && b.getAuthors().stream().anyMatch(a -> 
+                                (a.getFirst_name() != null && a.getFirst_name().toLowerCase().contains(keyword)) ||
+                                (a.getLast_name() != null && a.getLast_name().toLowerCase().contains(keyword))
+                            );
+                            break;
+                        case "Year":
+                            matchesFilter = Integer.toString(b.getYear()).contains(keyword);
+                            break;
+                        case "ISBN":
+                            matchesFilter = b.getIsbn() != null && b.getIsbn().toLowerCase().contains(keyword);
+                            break;
+                        case "Title":
+                            matchesFilter = b.getTitle() != null && b.getTitle().toLowerCase().contains(keyword);
+                            break;
+                    }
+                    if (!matchesFilter) {
+                        continue; // Skip this book if it doesn't match the filter
+                    }
+                }
+
                 boolean match = keyword.isEmpty()
                     || (b.getTitle() != null && b.getTitle().toLowerCase().contains(keyword))
                     || (b.getIsbn() != null && b.getIsbn().toLowerCase().contains(keyword))
@@ -131,8 +173,9 @@ public class BooksView {
                         (a.getFirst_name() != null && a.getFirst_name().toLowerCase().contains(keyword)) ||
                         (a.getLast_name() != null && a.getLast_name().toLowerCase().contains(keyword))
                     ))
+                    || (b.getYear() != 0 && Integer.toString(b.getYear()).contains(keyword))
                     || (b.getGenre() != null && b.getGenre().stream().anyMatch(g ->
-                        g.toString().toLowerCase().contains(keyword)
+                        Genre.convertGenreToString(g).toLowerCase().contains(keyword)
                     ));
 
                 if (match) {
@@ -236,6 +279,10 @@ public class BooksView {
             return;
         }
 
+        if (member.getIs_suspended()) {
+            alert("Your account is suspended. Please contact a librarian.");
+            return;
+        } 
         LocalDate start = LocalDate.now();
 
         int activeBorrowings = (int) ApplicationFX.getBorrowings()

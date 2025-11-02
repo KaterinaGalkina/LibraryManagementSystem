@@ -15,9 +15,11 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class BorrowingsView {
@@ -36,6 +38,16 @@ public class BorrowingsView {
         Label title = new Label("My Borrowings");
         title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
+        // --- Filter ComboBox ---
+        ComboBox<String> filterBox = new ComboBox<>();
+        filterBox.getItems().addAll("All", "Active", "Returned", "Late");
+        filterBox.setValue("All");
+        filterBox.setOnAction(e -> refreshBorrowingsList(conn, filterBox.getValue()));
+
+        HBox topBar = new HBox(20, title, filterBox);
+        topBar.setAlignment(Pos.CENTER);
+        topBar.setPadding(new Insets(20));
+
         // --- Borrowings list ---
         borrowingsBox = new VBox(8);
         borrowingsBox.setAlignment(Pos.TOP_LEFT);
@@ -50,10 +62,10 @@ public class BorrowingsView {
         statusLabel.setStyle("-fx-text-fill:#666; -fx-font-size: 13px;");
 
         // --- Assemble root ---
-        root.getChildren().addAll(title, scrollPane, statusLabel);
+        root.getChildren().addAll(topBar, scrollPane, statusLabel);
 
         // Initial refresh
-        refreshBorrowingsList(conn);
+        refreshBorrowingsList(conn, "All");
 
         // --- Main scroll pane ---
         ScrollPane main = new ScrollPane(root);
@@ -64,10 +76,12 @@ public class BorrowingsView {
         return main;
     }
     // Refresh borrowings list
-    private void refreshBorrowingsList(Connection conn) {
+    private void refreshBorrowingsList(Connection conn, String filter) {
         borrowingsBox.getChildren().clear();
 
         HashMap<Member, HashSet<Borrowing>> borrowings = ApplicationFX.getBorrowings();
+        final LocalDate today = LocalDate.now();
+
         if (borrowings == null || borrowings.isEmpty()) {
             statusLabel.setText("Total borrowings: 0");
             return;
@@ -85,6 +99,22 @@ public class BorrowingsView {
 
         for (Borrowing borrowing : memberBorrowings) {
             total++;
+
+            // --- filtre par statut ---
+            boolean isReturned = (borrowing.getReal_return_date() != null);
+            boolean isLate = !isReturned
+                    && borrowing.getReturn_date() != null
+                    && borrowing.getReturn_date().isBefore(today);
+            boolean isActive = !isReturned && !isLate;
+
+            boolean matches =
+                "All".equals(filter)
+                || ("Active".equals(filter)   && isActive)
+                || ("Returned".equals(filter) && isReturned)
+                || ("Late".equals(filter)     && isLate);
+
+            if (!matches) continue;
+            
             GridPane itemBox = createBorrowingCard(conn, borrowing);
             borrowingsBox.getChildren().add(itemBox);
         }
@@ -153,7 +183,7 @@ public class BorrowingsView {
         boolean ok = LibraryManager.finish_borrowing(conn, borrowing);
         if (ok) {
             alert("✅ Successfully returned.");
-            refreshBorrowingsList(conn);
+            refreshBorrowingsList(conn, "All");
         } else {
             alert("⚠️ Failed to return. Please try again.");
         }
