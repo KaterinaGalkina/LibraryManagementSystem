@@ -2,8 +2,10 @@ package com.library.ui.menu.menuSections;
 
 import java.sql.Connection;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import com.library.borrowingsystem.Borrowing;
 import com.library.borrowingsystem.LibraryManager;
@@ -26,7 +28,8 @@ public class BorrowingsView {
 
     private Label statusLabel;
     private VBox borrowingsBox;
-
+    private String currentFilter = "All";
+    private String currentSort = "Most Recent → Oldest";
     public ScrollPane start(Connection conn) {
 
         // --- Main container ---
@@ -41,10 +44,19 @@ public class BorrowingsView {
         // --- Filter ComboBox ---
         ComboBox<String> filterBox = new ComboBox<>();
         filterBox.getItems().addAll("All", "Active", "Returned", "Late");
-        filterBox.setValue("All");
-        filterBox.setOnAction(e -> refreshBorrowingsList(conn, filterBox.getValue()));
+        filterBox.setValue(currentFilter);
+        
+        // --- Sort Box---
+        ComboBox<String> sortBox = new ComboBox<>();
+        sortBox.getItems().addAll("Most Recent → Oldest", "Oldest → Most Recent");
+        sortBox.setValue(currentSort);
 
-        HBox topBar = new HBox(20, title, filterBox);
+        
+        filterBox.setOnAction(e -> refreshBorrowingsList(conn, filterBox.getValue(), sortBox.getValue()));
+        sortBox.setOnAction(e -> refreshBorrowingsList(conn, filterBox.getValue(), sortBox.getValue()));
+
+
+        HBox topBar = new HBox(20, title, filterBox, sortBox);
         topBar.setAlignment(Pos.CENTER);
         topBar.setPadding(new Insets(20));
 
@@ -65,7 +77,7 @@ public class BorrowingsView {
         root.getChildren().addAll(topBar, scrollPane, statusLabel);
 
         // Initial refresh
-        refreshBorrowingsList(conn, "All");
+        refreshBorrowingsList(conn, currentFilter, currentSort);
 
         // --- Main scroll pane ---
         ScrollPane main = new ScrollPane(root);
@@ -76,10 +88,15 @@ public class BorrowingsView {
         return main;
     }
     // Refresh borrowings list
-    private void refreshBorrowingsList(Connection conn, String filter) {
+    private void refreshBorrowingsList(Connection conn, String filter, String sort) {
+        // Update current filter and sort
+        currentFilter = filter;
+        currentSort = sort;
+
         borrowingsBox.getChildren().clear();
 
         HashMap<Member, HashSet<Borrowing>> borrowings = ApplicationFX.getBorrowings();
+
         final LocalDate today = LocalDate.now();
 
         if (borrowings == null || borrowings.isEmpty()) {
@@ -89,15 +106,23 @@ public class BorrowingsView {
 
         Member member = ApplicationFX.getConnected_member();
         HashSet<Borrowing> memberBorrowings = borrowings.get(member);
+        
+        List<Borrowing> sortedBorrowings = new ArrayList<>(memberBorrowings);
 
         if (memberBorrowings == null || memberBorrowings.isEmpty()) {
             statusLabel.setText("Total borrowings: 0");
             return;
         }
 
+        if("Most Recent → Oldest".equals(sort)) {
+            sortedBorrowings.sort((b1, b2) -> b2.getBorrowing_date().compareTo(b1.getBorrowing_date()));
+        } else {
+            sortedBorrowings.sort((b1, b2) -> b1.getBorrowing_date().compareTo(b2.getBorrowing_date()));
+        }
+
         int total = 0;
 
-        for (Borrowing borrowing : memberBorrowings) {
+        for (Borrowing borrowing : sortedBorrowings) {
             total++;
 
             // --- filtre par statut ---
@@ -183,7 +208,7 @@ public class BorrowingsView {
         boolean ok = LibraryManager.finish_borrowing(conn, borrowing);
         if (ok) {
             alert("✅ Successfully returned.");
-            refreshBorrowingsList(conn, "All");
+            refreshBorrowingsList(conn, currentFilter, currentSort);
         } else {
             alert("⚠️ Failed to return. Please try again.");
         }
