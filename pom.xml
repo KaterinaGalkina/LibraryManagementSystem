@@ -42,19 +42,11 @@
       <artifactId>javafx-fxml</artifactId>
       <version>${javafx.version}</version>
     </dependency>
-
-    <!-- JUnit pour tests -->
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <!-- Configuration du build -->
   <build>
-    <!-- ⚙️ On adapte Maven à ton arborescence actuelle -->
+    <!-- Adapter Maven à l'arborescence actuelle -->
     <sourceDirectory>src</sourceDirectory>
     <testSourceDirectory>test</testSourceDirectory>
 
@@ -79,7 +71,7 @@
         </configuration>
       </plugin>
 
-      <!-- Plugin JavaFX (optionnel si tu utilises une interface) -->
+      <!-- Plugin JavaFX -->
       <plugin>
         <groupId>org.openjfx</groupId>
         <artifactId>javafx-maven-plugin</artifactId>
