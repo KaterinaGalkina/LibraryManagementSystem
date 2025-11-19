@@ -34,15 +34,15 @@ CREATE TABLE IF NOT EXISTS books (
     FOREIGN KEY (id) REFERENCES documents(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS document_genres (
+CREATE TABLE IF NOT EXISTS documents_genres (
     document_id INTEGER NOT NULL,
     genre TEXT NOT NULL CHECK (genre IN (
-        'Fiction','Classics','Romance','Mystery','Thriller','Detective','Adventure','Fantasy','Science_Fiction',
-        'Historical_Fiction','Drama','Poetry','Philosophy','Psychology','Sociology','Politics','History','Education',
+        'Fiction','Classics','Romance','Mystery','Thriller','Detective','Adventure','Fantasy','Science fiction',
+        'Historical fiction','Drama','Poetry','Philosophy','Psychology','Sociology','Politics','History','Education',
         'Law','Religion','Anthropology','Economy','Finance','Management','Marketing','Entrepreneurship','Accounting',
-        'Business_Strategy','Science','Mathematics','Physics','Chemistry','Biology','Medicine','Computer_Science',
+        'Business strategy','Science','Mathematics','Physics','Chemistry','Biology','Medicine','Computer science',
         'Engineering','Environment','Astronomy','Art','Architecture','Design','Photography','Cinema','Music',
-        'Literature','Culture','Travel','Cooking','Fashion','Beauty','Home','Gardening','Sports','Well_Being',
+        'Literature','Culture','Travel','Cooking','Fashion','Beauty','Home','Gardening','Sports','Well being',
         'Family','Lifestyle','Children','Teen','Comics','Games')),
     PRIMARY KEY (document_id, genre),
     FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE
@@ -71,7 +71,6 @@ CREATE TABLE IF NOT EXISTS members (
     mail TEXT UNIQUE,
     password TEXT NOT NULL,
     is_library_worker BOOLEAN DEFAULT 0,
-    is_suspended BOOLEAN DEFAULT 0,
     FOREIGN KEY (id) REFERENCES people(id) ON DELETE CASCADE
 );
 
@@ -82,6 +81,7 @@ CREATE TABLE IF NOT EXISTS borrowings (
     start_date DATE DEFAULT (DATE('now')),
     expected_end_date DATE,
     real_end_date DATE,
+    fine_paid BOOLEAN DEFAULT 0,
     FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE,
     FOREIGN KEY (person_id) REFERENCES people(id) ON DELETE CASCADE
 );
@@ -94,7 +94,9 @@ CREATE TABLE IF NOT EXISTS borrowings (
 INSERT INTO people (id, first_name, last_name, birth_date) VALUES
 (1, 'George', 'Orwell', '1903-06-25'),
 (2, 'Alison', 'George', '1988-01-03'),
-(3, 'Isaac', 'Asimov', '1920-01-02');
+(3, 'Isaac', 'Asimov', '1920-01-02'),
+(4, 'admin', 'admin', '2000-01-01'),
+(5, 'Kate', 'Galkina', '2004-10-10');
 
 -- Documents
 INSERT INTO documents (id, title, nb_copies) VALUES
@@ -112,12 +114,12 @@ INSERT INTO books (id, isbn, pages_number, year) VALUES
 (3, '9780439023528', 374, 2008);
 
 -- Document Genres
-INSERT INTO document_genres (document_id, genre) VALUES
-(1, 'Science_Fiction'),
+INSERT INTO documents_genres (document_id, genre) VALUES
+(1, 'Science fiction'),
 (2, 'Fiction'),
 (3, 'Romance'),
 (3, 'Literature'),
-(4, 'Science_Fiction'),
+(4, 'Science fiction'),
 (5, 'Science'),
 (6, 'Environment');
 
@@ -142,4 +144,6 @@ INSERT INTO magazine_numbers (id, magazine_id, issue_number, issue_date) VALUES
 (5, 2, 4, '2020-06-01'),
 (6, 3, 5, '2019-09-15');
 
-
+INSERT INTO members (id, phone_number, address, mail, password, is_library_worker) VALUES 
+(4, 'admin', 'admin', 'admin', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 1),
+(5, '+330611879072', '121 rue de Bellevue', 'ekaterina.galkina@outlook.com', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 1);

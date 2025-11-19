@@ -5,13 +5,11 @@ import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-
 import com.library.borrowingsystem.Borrowing;
 import com.library.borrowingsystem.LibraryManager;
 import com.library.documents.*;
 import com.library.people.*;
 import com.library.ui.login.*;
-
 import javafx.application.Application;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
@@ -86,7 +84,6 @@ public class ApplicationFX extends Application {
                 }
             }
             
-
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -112,11 +109,42 @@ public class ApplicationFX extends Application {
         return ApplicationFX.borrowings;
     }
 
+    public static void addBorrowing(Borrowing new_borrowing){
+        if (new_borrowing != null && ApplicationFX.borrowings.containsKey(new_borrowing.getMember())){
+            ApplicationFX.borrowings.get(new_borrowing.getMember()).add(new_borrowing);
+        }
+    }
+
+    public static void addDocument(Document new_document){
+        if (new_document != null){
+            ApplicationFX.documents.add(new_document);
+        }
+    }
+
+    public static void addMagazine(Magazine new_magazine){
+        if (new_magazine != null){
+            ApplicationFX.magazines.add(new_magazine);
+        }
+    }
+
+    public static void addAuthor(Author new_author){
+        if (new_author != null){
+            ApplicationFX.authors.add(new_author);
+        }
+    }
+
+    public static void addMember(Member new_member){
+        if (new_member != null){
+            ApplicationFX.members.add(new_member);
+            ApplicationFX.borrowings.put(new_member, new HashSet<>());
+        }
+    }
+
     public static Member getConnected_member() {
         return ApplicationFX.connected_member;
     }
 
-    public static void setConnected_member(Member connected_member) {
+    public static void setConnected_member(Member connected_member) { // It is possible to set an empty member when user connects anonymously
         ApplicationFX.connected_member = connected_member;
     }
 

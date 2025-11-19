@@ -30,7 +30,7 @@ public abstract class Person {
 
     @Override
     public String toString() {
-        return this.first_name + " " + this.last_name + " " + this.birth_date.toString();
+        return this.first_name + " " + this.last_name;
     }
 
     public int getId() {

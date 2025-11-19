@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-
 import com.library.documents.Book;
 import com.library.documents.Document;
 import com.library.documents.Magazine;
@@ -19,24 +18,18 @@ import com.library.documents.Periodicity;
 import com.library.documents.Genre;
 import com.library.people.Author;
 import com.library.people.Member;
-import com.library.ui.ApplicationFX;
 
 public class LibraryManager {
 
+    // To retrieve all existing authors from the database
     public static ArrayList<Author> get_authors(Connection conn){
         try {
             Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT Distinct people.id, people.first_name, people.last_name, people.birth_date FROM documents_authors INNER JOIN people on documents_authors.author_id = people.id ;"); // dans tous les cas on crée deux fois author et member si un auteur est un member
+            ResultSet rs = stmt.executeQuery("SELECT Distinct people.id, people.first_name, people.last_name, people.birth_date FROM documents_authors INNER JOIN people on documents_authors.author_id = people.id ;");
             ArrayList<Author> authors = new ArrayList<>();
 
             while (rs.next()) {
-                authors.add(
-                    new Author(rs.getString("first_name"), 
-                            rs.getString("last_name"), 
-                            LocalDate.parse(rs.getString("birth_date")),
-                            rs.getInt("id")
-                    )
-                );
+                authors.add(new Author(rs.getString("first_name"), rs.getString("last_name"), LocalDate.parse(rs.getString("birth_date")), rs.getInt("id")));
             }
             return authors;
         } catch (SQLException e) {
@@ -45,6 +38,7 @@ public class LibraryManager {
         }
     }
 
+    // To retrieve all existing members from the database
     public static ArrayList<Member> get_members(Connection conn){ 
         try {
             Statement stmt = conn.createStatement();
@@ -62,21 +56,9 @@ public class LibraryManager {
                 String address = rs.getString("address");
                 String mail = rs.getString("mail");
                 boolean is_library_worker = rs.getBoolean("is_library_worker");
-                boolean is_suspended = rs.getBoolean("is_suspended");
 
-                members.add(
-                    new Member(member_first_name, 
-                    last_name, 
-                    birth_date,
-                    id, 
-                    penalty_status, 
-                    phone_number, 
-                    address, 
-                    mail,
-                    is_library_worker,
-                    is_suspended
-                    )
-                );
+                members.add(new Member(member_first_name, last_name, birth_date,
+                    id, penalty_status, phone_number, address, mail, is_library_worker));
             }
             return members;
         } catch (SQLException e) {
@@ -85,6 +67,7 @@ public class LibraryManager {
         }
     }
 
+    // To retrieve all existing magazines from the database
     public static ArrayList<Magazine> get_magazines(Connection conn){
         try {
             Statement stmt = conn.createStatement();
@@ -92,12 +75,8 @@ public class LibraryManager {
             ArrayList<Magazine> magazines = new ArrayList<>();
 
             while (rs.next()) {
-                magazines.add(
-                    new Magazine(rs.getInt("magazine_id"),
-                        rs.getString("magazine_title"), 
-                        Periodicity.convertStringToPeriodicity(rs.getString("periodicity"))
-                    )
-                );
+                magazines.add(new Magazine(rs.getInt("magazine_id"), rs.getString("magazine_title"), 
+                    Periodicity.convertStringToPeriodicity(rs.getString("periodicity"))));
             }
             return magazines;
         } catch (SQLException e) {
@@ -106,7 +85,8 @@ public class LibraryManager {
         }
     }
     
-    public static ArrayList<Book> get_books(Connection conn, ArrayList<Author> authors){ 
+    // To retrieve all existing books from the database (used in general method get_documents)
+    private static ArrayList<Book> get_books(Connection conn, ArrayList<Author> authors){ 
         try{
             Statement stmt = conn.createStatement();
             ResultSet rs_books = stmt.executeQuery("SELECT * FROM documents INNER JOIN books ON documents.id = books.id;");
@@ -122,7 +102,7 @@ public class LibraryManager {
                 int book_year = rs_books.getInt("year");
 
                 stmt = conn.createStatement();
-                ResultSet rs_genres = stmt.executeQuery("SELECT * FROM document_genres Where document_genres.document_id  = " + book_id + ";");
+                ResultSet rs_genres = stmt.executeQuery("SELECT * FROM documents_genres Where document_id  = " + book_id + ";");
 
                 Set<Genre> genres_of_the_current_book = new HashSet<>();
                 while (rs_genres.next()) {
@@ -147,18 +127,8 @@ public class LibraryManager {
                     }
                 }
 
-                books.add(
-                    new Book(
-                        genres_of_the_current_book,
-                        book_title, 
-                        book_id, 
-                        book_nb_copies, 
-                        authors_of_the_current_book,
-                        book_isbn,
-                        book_pages_number,
-                        book_year
-                    )
-                );
+                books.add(new Book(genres_of_the_current_book, book_title, book_id, book_nb_copies, 
+                    authors_of_the_current_book, book_isbn, book_pages_number, book_year));
             }
             return books;
         }
@@ -168,7 +138,8 @@ public class LibraryManager {
         }
     }
     
-    public static ArrayList<MagazineIssue> get_magazine_issues(Connection conn, ArrayList<Author> authors, ArrayList<Magazine> magazines){ 
+    // To retrieve all existing magazine issues from the database (used in general method get_documents)
+    private static ArrayList<MagazineIssue> get_magazine_issues(Connection conn, ArrayList<Author> authors, ArrayList<Magazine> magazines){ 
         try {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM documents INNER JOIN magazine_numbers ON documents.id = magazine_numbers.id;");
@@ -180,7 +151,7 @@ public class LibraryManager {
                 int magazine_id = rs.getInt("magazine_id");
 
                 Statement stmt2 = conn.createStatement();
-                ResultSet rs_genres = stmt2.executeQuery("SELECT * FROM document_genres WHERE document_genres.document_id = " + magazineIssue_id + ";");
+                ResultSet rs_genres = stmt2.executeQuery("SELECT * FROM documents_genres WHERE document_id = " + magazineIssue_id + ";");
 
                 Set<Genre> genre_of_of_the_current_magazine = new HashSet<>();
                 while (rs_genres.next()) {
@@ -209,18 +180,8 @@ public class LibraryManager {
                         .filter(a -> a.getMagazine_id() == magazine_id)
                         .findFirst()
                         .orElse(null);
-                magazine_issues.add(
-                    new MagazineIssue(
-                        genre_of_of_the_current_magazine,
-                        rs.getString("title"), 
-                        rs.getInt("nb_copies"), 
-                        magazineIssue_id,
-                        authors_of_the_current_magazine,
-                        rs.getInt("issue_number"),
-                        LocalDate.parse(rs.getString("issue_date")),
-                        magazine
-                    )
-                );
+                magazine_issues.add(new MagazineIssue(genre_of_of_the_current_magazine, rs.getString("title"), rs.getInt("nb_copies"), 
+                        magazineIssue_id, authors_of_the_current_magazine, rs.getInt("issue_number"), LocalDate.parse(rs.getString("issue_date")), magazine));
             }
             return magazine_issues;
         } catch (SQLException e) {
@@ -229,6 +190,7 @@ public class LibraryManager {
         }
     }
     
+    // To retrieve all existing documents from the database
     public static ArrayList<Document> get_documents(Connection conn, ArrayList<Author> authors, ArrayList<Magazine> magazines){ 
         ArrayList<Document> documents = new ArrayList<>();
         ArrayList<Book> books = get_books(conn, authors);
@@ -238,6 +200,7 @@ public class LibraryManager {
         return documents;
     }
 
+    // To retrieve all existing Member - set of Borrowings associations from the database
     public static HashMap<Member, HashSet<Borrowing>> get_borrowings(Connection conn, ArrayList<Member> members, ArrayList<Document> documents){ 
         try {
             Statement stmt;
@@ -255,21 +218,22 @@ public class LibraryManager {
                         .findFirst()
                         .orElse(null);
 
-                    String realEndDateStr = rs.getString("real_end_date");
-                    LocalDate real_end_date = null;
-                    if (realEndDateStr != null) {
-                        real_end_date = LocalDate.parse(realEndDateStr);
-                    } 
+                    if (document != null){
+                        String real_end_date_str = rs.getString("real_end_date");
+                        LocalDate real_end_date = null;
+                        if (real_end_date_str != null) {
+                            real_end_date = LocalDate.parse(real_end_date_str);
+                        } 
 
-                    borrowings_per_member.get(member).add(
-                        new Borrowing(rs.getInt("id"), 
-                                        document, 
-                                        member, 
-                                        LocalDate.parse(rs.getString("start_date")), 
-                                        LocalDate.parse(rs.getString("expected_end_date")), 
-                                        real_end_date
-                        )
-                    );
+                        boolean fine_paid = rs.getInt("fine_paid") == 1 ? true : false;
+
+                        borrowings_per_member.get(member).add(
+                            new Borrowing(rs.getInt("id"), document, member, LocalDate.parse(rs.getString("start_date")), 
+                                LocalDate.parse(rs.getString("expected_end_date")), real_end_date, fine_paid)
+                        );
+                    } else {
+                        System.out.println("Document with id = " + document_id + " not found!");
+                    }
                 }
             }
             return borrowings_per_member;
@@ -279,13 +243,14 @@ public class LibraryManager {
         }
     }
 
+    // To import a newly created borrowing new_borrowing in the database, returns boolean indicating success or failure
     public static boolean create_borrowing(Connection conn, Borrowing new_borrowing) {
         String checkCopies = "SELECT nb_copies FROM documents WHERE id = ?";
         String insertBorrowing = "INSERT INTO borrowings (id, document_id, person_id, start_date, expected_end_date, real_end_date) VALUES (?, ?, ?, ?, ?, ?)";
         String updateCopies = "UPDATE documents SET nb_copies = nb_copies - 1 WHERE id = ?";
 
         try {
-            //  Vérifier s’il reste des exemplaires disponibles
+            //  We check whether there are well copies left
             PreparedStatement checkStmt = conn.prepareStatement(checkCopies);
             checkStmt.setInt(1, new_borrowing.getDocument().getId());
             ResultSet rs = checkStmt.executeQuery();
@@ -295,7 +260,7 @@ public class LibraryManager {
                 return false;
             }
 
-            //  Insérer le nouvel emprunt
+            //  We insert the new borrowing
             PreparedStatement pstmt = conn.prepareStatement(insertBorrowing);
             pstmt.setInt(1, new_borrowing.getId_borrowing());
             pstmt.setInt(2, new_borrowing.getDocument().getId());
@@ -309,13 +274,10 @@ public class LibraryManager {
             }
             pstmt.executeUpdate();
 
-            //  Décrémenter le nombre de copies
+            // We are decrementing the number of copies
             PreparedStatement psCopies = conn.prepareStatement(updateCopies);
             psCopies.setInt(1, new_borrowing.getDocument().getId());
             psCopies.executeUpdate();
-
-            //  Recharger les données en mémoire
-            ApplicationFX.refreshAll();
             return true;
 
         } catch (SQLException e) {
@@ -324,32 +286,25 @@ public class LibraryManager {
         }
     }
 
-    public static boolean finish_borrowing(Connection conn,Borrowing borrowing){ 
-        String sql = "UPDATE borrowings SET real_end_date = ? WHERE id = ?";
-        String updateCopies = "UPDATE documents SET nb_copies = nb_copies + 1 WHERE id = ?";
-
+    // To add the return document date to a borrowing in the database
+    public static boolean finish_borrowing(Connection conn, Borrowing borrowing){ 
         try {
-            String sql_borrowing = "SELECT * FROM borrowings WHERE id = " + borrowing.getId_borrowing() + ";";
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(sql_borrowing);
-
-            if (!rs.next()) {
+            if (!exists(conn, "borrowings", "id", borrowing.getId_borrowing())) { 
                 System.out.println("Error: Impossible to finish the borrowing, it doesn't exist!");
                 return false;
             }
+            String sql = "UPDATE borrowings SET real_end_date = ? WHERE id = ?";
+            String updateCopies = "UPDATE documents SET nb_copies = nb_copies + 1 WHERE id = ?";
 
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, borrowing.getReal_return_date().toString());
             pstmt.setInt(2, borrowing.getId_borrowing());
-
             pstmt.executeUpdate();
 
-            // nb_copies increment
+            // We are incrementing the number of availible copies
             PreparedStatement psCopies = conn.prepareStatement(updateCopies);
             psCopies.setInt(1, borrowing.getDocument().getId());
             psCopies.executeUpdate();
-
-            ApplicationFX.refreshAll();
             return true;
 
         } catch (SQLException e) {
@@ -358,29 +313,40 @@ public class LibraryManager {
         }
     }
 
-    public static boolean add_magazine(Connection conn, Magazine new_magazine){
-        String sql = "INSERT INTO magazines (magazine_id, magazine_title, periodicity) VALUES (?, ?, ?)";
-
+    // To update the attribute fine_paid, which indicates whether the fine of a finished overdue borrowing is payed 
+    // (to know whether we are counting it in the total owned amount or not)
+    public static boolean update_fine_paid_borrowing(Connection conn, Borrowing borrowing){
         try {
-            // First we are checking whether we are not adding an already existing magazine
-            Statement stmt = conn.createStatement();
+            if (!exists(conn, "borrowings", "id", borrowing.getId_borrowing())) { 
+                System.out.println("Error: Impossible to finish the borrowing, it doesn't exist!");
+                return false;
+            }
+            String sql = "UPDATE borrowings SET fine_paid = ? WHERE id = ?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, borrowing.getFine_paid() ? 1: 0);
+            pstmt.setInt(2, borrowing.getId_borrowing());
+            pstmt.executeUpdate();
+            return true;
 
-            // Check whether a magazine with this magazine_id already exists
-            ResultSet rs = stmt.executeQuery("SELECT * FROM magazines WHERE magazine_id = " + new_magazine.getMagazine_id() + ";");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
-            if (rs.next()) {
-                // rs.next() returns true if there is at least one row
+    // To add a new magazine into the database
+    public static boolean add_magazine(Connection conn, Magazine new_magazine){
+        try {
+            if (exists(conn, "magazines", "magazine_id", new_magazine.getMagazine_id())) { 
                 System.out.println("Error: Impossible to add the magazine, it already exists!");
                 return false;
             }
-
+            String sql = "INSERT INTO magazines (magazine_id, magazine_title, periodicity) VALUES (?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, new_magazine.getMagazine_id());
             pstmt.setString(2, new_magazine.getMagazine_title());
-            pstmt.setString(3, Periodicity.convertPeriodicityToString(new_magazine.getPeriodicity()));
+            pstmt.setString(3, new_magazine.getPeriodicity().toString());
             pstmt.executeUpdate();
-
-            ApplicationFX.refreshAll();
             return true;
 
         } catch (SQLException e) {
@@ -389,27 +355,17 @@ public class LibraryManager {
         }
     }
 
+    // To remove a magazine from the database
     public static boolean remove_magazine(Connection conn, Magazine magazine_to_remove){ 
         try {
-            String sql_magazine = "SELECT * FROM magazines WHERE magazines.magazine_id = " + magazine_to_remove.getMagazine_id() + ";";
-            
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(sql_magazine);
-            if(!rs.next()){
+            if (!exists(conn, "magazines", "magazine_id", magazine_to_remove.getMagazine_id())) { 
                 System.out.println("Error: Impossible to remove the magazine, it doesn't exist!");
                 return false;
             }
-            String sql_documents_deletion =  "DELETE FROM documents WHERE id IN (SELECT id FROM magazine_numbers WHERE magazine_id = "+magazine_to_remove.getMagazine_id()+");";
-            
+            // It will automatically delete in cascade from magazine_issues table and documents and so on
+            String sql_magazine_deletion = "DELETE FROM magazines WHERE magazine_id = " + magazine_to_remove.getMagazine_id() + ";";
             Statement stmt2 = conn.createStatement();
-            stmt2.executeUpdate(sql_documents_deletion); 
-            
-            String sql_magazine_deletion = "DELETE FROM magazines WHERE magazines.magazine_id = " + magazine_to_remove.getMagazine_id() + ";";
-            
-            stmt2 = conn.createStatement();
             stmt2.executeUpdate(sql_magazine_deletion); 
-
-            ApplicationFX.refreshAll();
             return true;
 
         } catch (SQLException e) {
@@ -417,22 +373,16 @@ public class LibraryManager {
             return false;
         }
     }
-    // depend de add_document
-    public static boolean add_book(Connection conn, Book new_book){
-        String sql = "INSERT INTO documents (id, title, nb_copies) VALUES (?, ?, ?)";
 
+    // To add book into the database
+    public static boolean add_book(Connection conn, Book new_book) {
         try {
-            Statement stmt = conn.createStatement();
-
-            // Check whether a Document with this id already exists
-            ResultSet rs = stmt.executeQuery("SELECT * FROM documents WHERE id = " + new_book.getId() + ";");
-
-            if (rs.next()) {
-                // rs.next() returns true if there is at least one row
+            if (exists(conn, "documents", "id", new_book.getId())) { 
                 System.out.println("Error: Impossible to add the document, it already exists!");
                 return false;
             }
 
+            String sql = "INSERT INTO documents (id, title, nb_copies) VALUES (?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, new_book.getId());
             pstmt.setString(2, new_book.getTitle());
@@ -440,8 +390,7 @@ public class LibraryManager {
             pstmt.executeUpdate();
 
             for (Author author: new_book.getAuthors()){
-                add_author(conn, author) ; // We add the author if he doesn't exist, if he exists it will just print an error message but it won't stop the execution
-                // Once the author is added, we can insert a line indicating that he wrote a document we are inserting
+                add_author(conn, author) ; // We add the author if it wasn't done before
                 String sql_author_insertion = "INSERT INTO documents_authors (document_id, author_id) VALUES (?, ?)";
 
                 PreparedStatement pstmt_author_document_insertion = conn.prepareStatement(sql_author_insertion);
@@ -451,23 +400,21 @@ public class LibraryManager {
             }
 
             for (Genre genre: new_book.getGenre()){
-                String sql_genre_insertion = "INSERT INTO document_genres (document_id, genre) VALUES (?, ?)";
-                PreparedStatement pstmt2 = conn.prepareStatement(sql_genre_insertion);
-                pstmt2.setInt(1, new_book.getId());
-                pstmt2.setString(2, Genre.convertGenreToString(genre));
-                pstmt2.executeUpdate();
+                String sql_genre_insertion = "INSERT INTO documents_genres (document_id, genre) VALUES (?, ?)";
+                PreparedStatement pstmt_genre = conn.prepareStatement(sql_genre_insertion);
+                pstmt_genre.setInt(1, new_book.getId());
+                pstmt_genre.setString(2, genre.toString());
+                pstmt_genre.executeUpdate();
             }
 
             String sql2 = "INSERT INTO books (id, isbn, pages_number, year) VALUES (?, ?, ?, ?)";
 
-            PreparedStatement pstmt2 = conn.prepareStatement(sql2);
-            pstmt2.setInt(1, new_book.getId());
-            pstmt2.setString(2, new_book.getIsbn());
-            pstmt2.setInt(3, new_book.getNb_pages());
-            pstmt2.setInt(4, new_book.getYear());
-            pstmt2.executeUpdate();
-
-            ApplicationFX.refreshAll();
+            PreparedStatement pstmt_book = conn.prepareStatement(sql2);
+            pstmt_book.setInt(1, new_book.getId());
+            pstmt_book.setString(2, new_book.getIsbn());
+            pstmt_book.setInt(3, new_book.getNb_pages());
+            pstmt_book.setInt(4, new_book.getYear());
+            pstmt_book.executeUpdate();
             return true;    
         } catch (SQLException e) {
             e.printStackTrace();        
@@ -475,19 +422,15 @@ public class LibraryManager {
         }
     }
     
+    // To update a book in the database
     public static boolean update_book(Connection conn, Book book_to_update){
         try {
-            Statement stmt = conn.createStatement();
-
-            // Check whether a Document with this id does exist
-            ResultSet rs = stmt.executeQuery("SELECT * FROM documents WHERE id = " + book_to_update.getId() + ";");
-
-            if (!rs.next()) {
-                // rs.next() returns true if there is at least one row
+            if (!exists(conn, "documents", "id", book_to_update.getId())) { 
                 System.out.println("Error: Impossible to update the document, it wasn't found in the database!");
                 return false;
             }
 
+            // We are updating the documents table
             String sql = "UPDATE documents SET title = ?, nb_copies = ? WHERE id = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, book_to_update.getTitle());
@@ -504,10 +447,8 @@ public class LibraryManager {
 
             // Then we repopulate the authors
             for (Author author : book_to_update.getAuthors()) {
-                add_author(conn, author); // We add the author if he doesn't exist, if he exists it will just print an error message but it won't stop the execution
-                // Once the author is added, we can insert a line indicating that he wrote a document we are inserting
+                add_author(conn, author);
                 String sql_author_insertion = "INSERT INTO documents_authors (document_id, author_id) VALUES (?, ?)";
-
                 PreparedStatement pstmt_author_document_insertion = conn.prepareStatement(sql_author_insertion);
                 pstmt_author_document_insertion.setInt(1, book_to_update.getId());
                 pstmt_author_document_insertion.setInt(2, author.getId());
@@ -515,7 +456,7 @@ public class LibraryManager {
             }
 
             // First we remove all previously mentionned genres
-            String sql_genres = "DELETE FROM document_genres WHERE document_id = ?";
+            String sql_genres = "DELETE FROM documents_genres WHERE document_id = ?";
 
             PreparedStatement pstmt_genres = conn.prepareStatement(sql_genres);
             pstmt_genres.setInt(1, book_to_update.getId());
@@ -523,13 +464,14 @@ public class LibraryManager {
 
             // Then we repopulate the genres
             for (Genre genre : book_to_update.getGenre()) {
-                String sql_genre_insertion = "INSERT INTO document_genres (document_id, genre) VALUES (?, ?)";
+                String sql_genre_insertion = "INSERT INTO documents_genres (document_id, genre) VALUES (?, ?)";
                 PreparedStatement pstmt2 = conn.prepareStatement(sql_genre_insertion);
                 pstmt2.setInt(1, book_to_update.getId());
-                pstmt2.setString(2, Genre.convertGenreToString(genre));
+                pstmt2.setString(2, genre.toString());
                 pstmt2.executeUpdate();
             }
 
+            // And we are updating the books table
             String sql2 = "UPDATE books SET isbn = ?, pages_number = ?, year = ? WHERE id = ?";
 
             PreparedStatement pstmt2 = conn.prepareStatement(sql2);
@@ -538,8 +480,6 @@ public class LibraryManager {
             pstmt2.setInt(3, book_to_update.getYear());
             pstmt2.setInt(4, book_to_update.getId());
             pstmt2.executeUpdate();
-
-            ApplicationFX.refreshAll();
             return true;
 
         } catch (SQLException e) {
@@ -548,19 +488,13 @@ public class LibraryManager {
         }
     }
 
+    // To update a magazine issue in the database
     public static boolean update_magazine_issue(Connection conn, MagazineIssue magazine_issue_to_update){ 
         try {
-            Statement stmt = conn.createStatement();
-
-            // Check whether a Document with this id does exist
-            ResultSet rs = stmt.executeQuery("SELECT * FROM documents WHERE id = " + magazine_issue_to_update.getId() + ";");
-
-            if (!rs.next()) {
-                // rs.next() returns true if there is at least one row
+            if (!exists(conn, "documents", "id", magazine_issue_to_update.getId())) { 
                 System.out.println("Error: Impossible to update the document, it wasn't found in the database!");
                 return false;
             }
-
             String sql = "UPDATE documents SET title = ?, nb_copies = ? WHERE id = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, magazine_issue_to_update.getTitle());
@@ -577,8 +511,7 @@ public class LibraryManager {
 
             // Then we repopulate the authors
             for (Author author : magazine_issue_to_update.getAuthors()) {
-                add_author(conn, author); // We add the author if he doesn't exist, if he exists it will just print an error message but it won't stop the execution
-                // Once the author is added, we can insert a line indicating that he wrote a document we are inserting
+                add_author(conn, author); 
                 String sql_author_insertion = "INSERT INTO documents_authors (document_id, author_id) VALUES (?, ?)";
 
                 PreparedStatement pstmt_author_document_insertion = conn.prepareStatement(sql_author_insertion);
@@ -588,7 +521,7 @@ public class LibraryManager {
             }
 
             // First we remove all previously mentionned genres
-            String sql_genres = "DELETE FROM document_genres WHERE document_id = ?";
+            String sql_genres = "DELETE FROM documents_genres WHERE document_id = ?";
 
             PreparedStatement pstmt_genres = conn.prepareStatement(sql_genres);
             pstmt_genres.setInt(1, magazine_issue_to_update.getId());
@@ -596,10 +529,10 @@ public class LibraryManager {
 
             // Then we repopulate the genres
             for (Genre genre : magazine_issue_to_update.getGenre()) {
-                String sql_genre_insertion = "INSERT INTO document_genres (document_id, genre) VALUES (?, ?)";
+                String sql_genre_insertion = "INSERT INTO documents_genres (document_id, genre) VALUES (?, ?)";
                 PreparedStatement pstmt2 = conn.prepareStatement(sql_genre_insertion);
                 pstmt2.setInt(1, magazine_issue_to_update.getId());
-                pstmt2.setString(2, Genre.convertGenreToString(genre));
+                pstmt2.setString(2, genre.toString());
                 pstmt2.executeUpdate();
             }
 
@@ -611,8 +544,6 @@ public class LibraryManager {
             pstmt2.setString(3, magazine_issue_to_update.getIssue_date().toString());
             pstmt2.setInt(4, magazine_issue_to_update.getId());
             pstmt2.executeUpdate();
-
-            ApplicationFX.refreshAll();
             return true;
 
         } catch (SQLException e) {
@@ -621,27 +552,19 @@ public class LibraryManager {
         }
     }
 
+    // To update a magazine in the database
     public static boolean update_magazine(Connection conn, Magazine magazine_to_update){
         try {
-            Statement stmt = conn.createStatement();
-
-            // Check whether a Magazine with this id does exist
-            ResultSet rs = stmt.executeQuery("SELECT * FROM magazines WHERE id = " + magazine_to_update.getMagazine_id() + ";");
-
-            if (!rs.next()) {
-                // rs.next() returns true if there is at least one row
+            if (!exists(conn, "magazines", "magazine_id", magazine_to_update.getMagazine_id())) { 
                 System.out.println("Error: Impossible to update the magazine, it wasn't found in the database!");
                 return false;
             }
-
             String sql = "UPDATE magazines SET magazine_title = ?, periodicity = ? WHERE magazine_id = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, magazine_to_update.getMagazine_id());
-            pstmt.setString(2, Periodicity.convertPeriodicityToString(magazine_to_update.getPeriodicity()));
+            pstmt.setString(1, magazine_to_update.getMagazine_title());
+            pstmt.setString(2, magazine_to_update.getPeriodicity().toString());
             pstmt.setInt(3, magazine_to_update.getMagazine_id());
             pstmt.executeUpdate();
-
-            ApplicationFX.refreshAll();
             return true;
 
         } catch (SQLException e) {
@@ -650,45 +573,33 @@ public class LibraryManager {
         }
     }
 
-    public static boolean remove_book(Connection conn, Book book_to_remove){ 
-
+    // To remove a document from the database (same for books and magazine issues, 
+    // because in specific tables, entries are going to be deleted in cascade automatically)
+    public static boolean remove_document(Connection conn, Document document_to_remove){ 
         try{
-            String sql_magazine = "SELECT * FROM books WHERE id = " + book_to_remove.getId() + ";";
-            
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(sql_magazine);
-            if(!rs.next()){
-                System.out.println("Error: Impossible to remove the book, it doesn't exist!");
+            if (!exists(conn, "documents", "id", document_to_remove.getId())) { 
+                System.out.println("Error: Impossible to remove the document, it doesn't exist!");
                 return false;
             }
-            String sql_document_deletion =  "DELETE FROM documents WHERE id  = "+ book_to_remove.getId()+";";
+            String sql_document_deletion =  "DELETE FROM documents WHERE id  = "+ document_to_remove.getId() + ";";
             
             Statement stmt2 = conn.createStatement();
             stmt2.executeUpdate(sql_document_deletion); 
-           
-            ApplicationFX.refreshAll();
             return true;  
         }catch(SQLException e){
             e.printStackTrace();
             return false;
         }
     }
-    // depend de add_document
+    
+    // To add a new magazine issue into the database
     public static boolean add_magazine_issue(Connection conn, MagazineIssue new_magazine_issue){
-        String sql = "INSERT INTO documents (id, title, nb_copies) VALUES (?, ?, ?)";
-
         try {
-            Statement stmt = conn.createStatement();
-
-            // Check whether a Document with this id already exists
-            ResultSet rs = stmt.executeQuery("SELECT * FROM documents WHERE id = " + new_magazine_issue.getId() + ";");
-
-            if (rs.next()) {
-                // rs.next() returns true if there is at least one row
+            if (exists(conn, "documents", "id", new_magazine_issue.getId())) { 
                 System.out.println("Error: Impossible to add the document, it already exists!");
                 return false;
             }
-
+            String sql = "INSERT INTO documents (id, title, nb_copies) VALUES (?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, new_magazine_issue.getId());
             pstmt.setString(2, new_magazine_issue.getTitle());
@@ -696,8 +607,7 @@ public class LibraryManager {
             pstmt.executeUpdate();
 
             for (Author author: new_magazine_issue.getAuthors()){
-                add_author(conn, author) ; // We add the author if he doesn't exist, if he exists it will just print an error message but it won't stop the execution
-                // Once the author is added, we can insert a line indicating that he wrote a document we are inserting
+                add_author(conn, author); 
                 String sql_author_insertion = "INSERT INTO documents_authors (document_id, author_id) VALUES (?, ?)";
 
                 PreparedStatement pstmt_author_document_insertion = conn.prepareStatement(sql_author_insertion);
@@ -707,10 +617,10 @@ public class LibraryManager {
             }
 
             for (Genre genre: new_magazine_issue.getGenre()){
-                String sql_genre_insertion = "INSERT INTO document_genres (document_id, genre) VALUES (?, ?)";
+                String sql_genre_insertion = "INSERT INTO documents_genres (document_id, genre) VALUES (?, ?)";
                 PreparedStatement pstmt2 = conn.prepareStatement(sql_genre_insertion);
                 pstmt2.setInt(1, new_magazine_issue.getId());
-                pstmt2.setString(2, Genre.convertGenreToString(genre));
+                pstmt2.setString(2, genre.toString());
                 pstmt2.executeUpdate();
             }
 
@@ -718,12 +628,11 @@ public class LibraryManager {
 
             PreparedStatement pstmt2 = conn.prepareStatement(sql2);
             pstmt2.setInt(1, new_magazine_issue.getId());
+            // We know that magazine with this magazine issue's magazine_id exists, because a user cannot mention a new magazine while creating a new issue
             pstmt2.setInt(2, new_magazine_issue.getMagazine().getMagazine_id());
             pstmt2.setInt(3, new_magazine_issue.getIssue_number());
             pstmt2.setString(4, new_magazine_issue.getIssue_date().toString());
             pstmt2.executeUpdate();
-
-            ApplicationFX.refreshAll();
             return true;    
         } catch (SQLException e) {
             e.printStackTrace();        
@@ -731,119 +640,39 @@ public class LibraryManager {
         }
     }
 
-    public static boolean remove_magazine_issue(Connection conn, MagazineIssue magazine_issue_to_remove){ 
+    // To update a user's priviledges in the database (add or remove priviledges of a library worker)
+    public static boolean set_privileges_to_member(Connection conn, Member member) {
         try {
-            String sql_magazine = "SELECT * FROM magazine_numbers WHERE id = " + magazine_issue_to_remove.getId() + ";";
-            
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(sql_magazine);
-            if(!rs.next()){
-                System.out.println("Error: Impossible to remove the magazine issue, it doesn't exist!");
-                return false;
-            }
-
-            String sql_documents_deletion =  "DELETE FROM documents WHERE id = "+magazine_issue_to_remove.getId()+";";
-            
-            Statement stmt2 = conn.createStatement();
-            stmt2.executeUpdate(sql_documents_deletion); 
-            
-            Magazine magazine =  magazine_issue_to_remove.getMagazine();
-            String sql = "SELECT * FROM magazine_numbers WHERE magazine_id = " + magazine.getMagazine_id() + ";";
-
-            stmt2 = conn.createStatement();
-            ResultSet rs2 = stmt2.executeQuery(sql);
-            if(!rs2.next()){
-                String sql_magazine_deletion = "DELETE FROM magazines WHERE magazines.magazine_id = " + magazine.getMagazine_id() + ";";
-
-                
-                stmt2 = conn.createStatement();
-                stmt2.executeUpdate(sql_magazine_deletion);
-            
-            }
-
-            ApplicationFX.refreshAll();
-            return true;
-
-        } catch (SQLException e) {
-            e.printStackTrace();  
-            return false;
-        }
-    }
-
-    public static boolean add_document(Connection conn, Document new_document){ 
-        if (new_document instanceof Book new_book) {
-            return add_book(conn, new_book);
-
-        } else if (new_document instanceof MagazineIssue new_magazine_issue) {
-            return add_magazine_issue(conn, new_magazine_issue);
-        }
-        return false;
-    }
-
-    public static boolean update_document(Connection conn, Document document_to_update){ 
-        if (document_to_update instanceof Book book_to_update) {
-            return update_book(conn, book_to_update);
-
-        } else if (document_to_update instanceof MagazineIssue magazine_issue_to_update) {
-            return update_magazine_issue(conn, magazine_issue_to_update);
-        }
-        return false;
-    }
-
-    public static boolean remove_document(Connection conn, Document document_to_remove){ // 
-        if (document_to_remove instanceof Book book_to_remove) {
-            return remove_book(conn, book_to_remove);
-
-        } else if (document_to_remove instanceof MagazineIssue magazine_issue_to_remove) {
-            return remove_magazine_issue(conn, magazine_issue_to_remove);
-        }
-        return false;
-    }
-
-    public static boolean set_privileges_to_member(Connection conn, Member member) { // Refreshing the member's priviledges in the database
-        try {
-            // First we are checking whether this member exists
-            String checkQuery = "SELECT id FROM members WHERE id = ?";
-            PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
-            checkStmt.setInt(1, member.getId());
-            ResultSet rs = checkStmt.executeQuery();
-            if (!rs.next()) {
+            // First we are checking whether this member indeed exists
+            if (!exists(conn, "members", "id", member.getId())) { 
                 System.out.println("Error: member not found in the database");
                 return false;
             }
-
             String update_members = "UPDATE members SET is_library_worker = ? WHERE id = ?";
-
             PreparedStatement pstmt_members = conn.prepareStatement(update_members);
-            pstmt_members.setInt(1, member.getIs_library_worker() ? 1 : 0);
+            pstmt_members.setBoolean(1, member.getIs_library_worker());
             pstmt_members.setInt(2, member.getId());
             pstmt_members.executeUpdate();
-            ApplicationFX.refreshAll();
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
+
+    // To suspend a member in the database (set the correct penalty_status) to prevent him borrow documents or on the contrary forgive the member
     public static boolean suspend_member(Connection conn, Member member) { // Suspending or reactivating a member in the database
         try {
-            // First we are checking whether this member exists
-            String checkQuery = "SELECT id FROM members WHERE id = ?";
-            PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
-            checkStmt.setInt(1, member.getId());
-            ResultSet rs = checkStmt.executeQuery();
-            if (!rs.next()) {
+            // First we are checking whether this member indeed exists
+            if (!exists(conn, "members", "id", member.getId())) { 
                 System.out.println("Error: member not found in the database");
                 return false;
             }
-
-            String update_members = "UPDATE members SET is_suspended = ? WHERE id = ?";
-
+            String update_members = "UPDATE members SET penalty_status = ? WHERE id = ?";
             PreparedStatement pstmt_members = conn.prepareStatement(update_members);
-            pstmt_members.setInt(1, member.getIs_suspended() ? 1 : 0);
+            pstmt_members.setInt(1, member.getPenalty_status() ? 1 : 0);
             pstmt_members.setInt(2, member.getId());
             pstmt_members.executeUpdate();
-            ApplicationFX.refreshAll();
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -851,14 +680,11 @@ public class LibraryManager {
         }
     }
 
+    // To update an existing member in the database
     public static boolean update_member(Connection conn, Member member, String new_password){ // If we don't want to change the password: new_password = null otherwise it is already hashed
         try {
-            // First we are checking whether this member exists
-            String checkQuery = "SELECT id FROM members WHERE id = ?";
-            PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
-            checkStmt.setInt(1, member.getId());
-            ResultSet rs = checkStmt.executeQuery();
-            if (!rs.next()) {
+            // First we are checking whether this member indeed exists
+            if (!exists(conn, "members", "id", member.getId())) { 
                 System.out.println("Error: member not found in the database");
                 return false;
             }
@@ -887,10 +713,7 @@ public class LibraryManager {
                 pstmt_members.setString(5, new_password);
                 pstmt_members.setInt(6, member.getId());
             }
-
             pstmt_members.executeUpdate();
-
-            ApplicationFX.refreshAll();
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -898,13 +721,11 @@ public class LibraryManager {
         }
     }
 
+    // To add a new member into the database
     public static boolean add_member(Connection conn, Member new_member, String password){
         try {
             // First we are checking whether this member aleady exists
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM people WHERE id = " + new_member.getId() + ";");
-            if (rs.next()) {
-                // rs.next() returns true if there is at least one row
+            if (exists(conn, "people", "id", new_member.getId())) { 
                 System.out.println("Error: Impossible to add the member, it already exists!");
                 return false;
             }
@@ -928,8 +749,6 @@ public class LibraryManager {
             pstmt.setString(5, new_member.getMail());
             pstmt.setString(6, password);
             pstmt.executeUpdate();
-
-            ApplicationFX.refreshAll();
             return true;
 
         } catch (SQLException e) {
@@ -938,39 +757,29 @@ public class LibraryManager {
         }
     }
 
+    // To delete a member from the database
     public static boolean remove_member(Connection conn,Member member_to_remove){ 
         try{
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM members WHERE id = "+ member_to_remove.getId()+";");
- 
-            if(!rs.next()){
+            if (!exists(conn, "members", "id", member_to_remove.getId())) { 
                 System.out.println("Error: Impossible to remove this member, it doesn't exist!");
                 return false;
             }
-
             Statement stmt2 = conn.createStatement();
-            stmt2.executeUpdate("DELETE FROM people WHERE id = " + member_to_remove.getId() + ";");
-            
-            ApplicationFX.refreshAll();
+            stmt2.executeUpdate("DELETE FROM people WHERE id = " + member_to_remove.getId());
             return true;
-
         }catch(SQLException e){
             e.printStackTrace();
             return false;
         }
     }
 
+    // To add an author into the database
     public static boolean add_author(Connection conn, Author new_author){
         try {
             // First we are checking whether this author aleady exists
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM people WHERE id = " + new_author.getId() + ";");
-            if (rs.next()) {
-                // rs.next() returns true if there is at least one row
-                System.out.println("Error: Impossible to add the author, it already exists!");
+            if (exists(conn, "people", "id", new_author.getId())) { // In this case we are not adding the author
                 return false;
             }
-
             String sql = "INSERT INTO people (id, first_name, last_name, birth_date) VALUES (?, ?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, new_author.getId());
@@ -978,8 +787,6 @@ public class LibraryManager {
             pstmt.setString(3, new_author.getLast_name());
             pstmt.setString(4, new_author.getBirth_date().toString());
             pstmt.executeUpdate();
-
-            ApplicationFX.refreshAll();
             return true;
 
         } catch (SQLException e) {
@@ -987,26 +794,22 @@ public class LibraryManager {
             return false;
         }
     }
-    
-    public static boolean remove_author(Connection conn, Author author_to_remove){ 
-        try{
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM people WHERE id = "+ author_to_remove.getId()+";");
- 
-            if(!rs.next()){
-                System.out.println("Error: Impossible to remove this author, it doesn't exist!");
-                return false;
+
+    public static boolean exists(Connection conn, String table, String idField, Object id) {
+        try {
+            String sql = "SELECT " + idField + " FROM " + table + " WHERE " + idField + " = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            if (id instanceof Integer) {
+                stmt.setInt(1, (Integer) id);
+            } else if (id instanceof String) {
+                stmt.setString(1, (String) id);
+            } else {
+                System.out.println("Unsupported ID type: " + id.getClass());
             }
-
-            Statement stmt2 = conn.createStatement();
-            stmt2.executeUpdate("DELETE FROM people WHERE id = " + author_to_remove.getId() + ";");
-            
-            ApplicationFX.refreshAll();
-            return true;
-
-
-        }catch(SQLException e){
-            e.printStackTrace();
+            ResultSet rs = stmt.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
             return false;
         }
     }

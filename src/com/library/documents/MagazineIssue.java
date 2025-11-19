@@ -7,14 +7,14 @@ import com.library.people.Author;
 
 public class MagazineIssue extends Document{
     private int issue_number;
-    private LocalDate issue_date; // = LocalDate.of(1986, 4, 26);
+    private LocalDate issue_date;
     private Magazine magazine;
 
     // If we are creating a fresh new
     public MagazineIssue(Set<Genre> genre, String title, int nb_copies, Set<Author> authors, int issue_number, LocalDate issue_date, Magazine magazine) {
         super(genre, title, nb_copies, authors);
-        this.issue_number = issue_number;
-        this.issue_date = issue_date;
+        this.issue_number = issue_number; // We are checking that it is positive
+        this.issue_date = issue_date; // We are checking whether the date is not empty
         this.magazine = magazine;
     }
 

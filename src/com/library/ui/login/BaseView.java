@@ -3,7 +3,6 @@ package com.library.ui.login;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.sql.Connection;
-
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -16,33 +15,32 @@ import javafx.stage.Stage;
 public class BaseView {
     public void start(Stage stage, GridPane currentGrid) { 
         try {
-            // --- Load the image --- 
+            // Loading the image
             Image image = new Image(new FileInputStream("src/assets/start_image.jpg"));
             ImageView imageView = new ImageView(image);
-            imageView.setFitWidth(500);   // width of the image block
-            imageView.setFitHeight(500);   // width of the image block
-            //imageView.setPreserveRatio(true);
+            imageView.setFitWidth(500); 
+            imageView.setFitHeight(500); 
 
-            // --- White rectangle overlay for login form ---
+            // White rectangle overlay for login form
             StackPane whitePane = new StackPane(); 
             whitePane.setStyle("-fx-background-color: white;");
-            whitePane.setPrefWidth(500); // left half
+            whitePane.setPrefWidth(500); 
             whitePane.setMaxHeight(500); 
             whitePane.getChildren().add(currentGrid);
 
-            // --- Combine in HBox: white rectangle left, image right ---
+            // Combining in HBox: white rectangle left, image right
             HBox content = new HBox();
             content.getChildren().addAll(whitePane, imageView);
-            content.setAlignment(Pos.CENTER_LEFT); // align HBox content to left
+            content.setAlignment(Pos.CENTER_LEFT);
 
-            // --- Outer gray background ---
+            // Outer gray background 
             StackPane outerPane = new StackPane();
-            outerPane.setStyle("-fx-background-color: #d3d3d3;"); // gray background
+            outerPane.setStyle("-fx-background-color: #d3d3d3;");
             outerPane.getChildren().add(content);
 
             outerPane.setOnMouseClicked(e -> outerPane.requestFocus());
 
-            Scene scene = new Scene(outerPane, 1000, 600); // adjust window size
+            Scene scene = new Scene(outerPane, 1000, 600);
             stage.setScene(scene);
             stage.setTitle("Library Login");
             stage.setResizable(false);
@@ -56,13 +54,13 @@ public class BaseView {
 
     public void switchToLogin(Stage stage, Connection conn) {
         LoginView loginView = new LoginView();
-        GridPane loginGrid = loginView.start(stage, conn); // get the login form
-        new BaseView().start(stage, loginGrid); // wrap with image
+        GridPane loginGrid = loginView.start(stage, conn);
+        new BaseView().start(stage, loginGrid);
     }
 
     public void switchToRegister(Stage stage, Connection conn) {
         RegisterView registerView = new RegisterView();
-        GridPane registerGrid = registerView.start(stage, conn); // get register form
-        new BaseView().start(stage, registerGrid); // wrap with image
+        GridPane registerGrid = registerView.start(stage, conn); 
+        new BaseView().start(stage, registerGrid); 
     }
 }

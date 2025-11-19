@@ -6,11 +6,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import com.library.people.Member;
 import com.library.ui.ApplicationFX;
-import com.library.ui.menu.*;
-
+import com.library.ui.generalStyling.UIStyling;
+import com.library.ui.workspace.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
@@ -23,11 +22,9 @@ import javafx.stage.Stage;
 public class LoginView {
 
     public GridPane start(Stage stage, Connection conn) {
-        // --- Title ---
         Label titleLabel = new Label("Log in");
         titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
-        // --- Left side: login form ---
         Label userLabel = new Label("Username:");
         TextField usernameField = new TextField();
 
@@ -37,13 +34,7 @@ public class LoginView {
         Label message = new Label();
         Button loginButton = new Button("Login");
 
-        loginButton.setStyle(
-            "-fx-background-color: #2c4237; " +
-            "-fx-text-fill: white; " +
-            "-fx-font-weight: bold; " +
-            "-fx-cursor: hand; " +
-            "-fx-background-radius: 5;"
-        );
+        UIStyling.button_styling(loginButton, "#2c4237", "white");
 
         Label infoLabel = new Label("Don't have an account?");
         infoLabel.setStyle("-fx-text-fill: gray;");
@@ -55,13 +46,8 @@ public class LoginView {
         infoLabel2.setStyle("-fx-text-fill: gray;");
 
         Button login_as_guest_button = new Button("Login as guest");
-        login_as_guest_button.setStyle(
-            "-fx-background-color: #024d60; " +
-            "-fx-text-fill: white; " +
-            "-fx-font-weight: bold; " +
-            "-fx-cursor: hand; " +
-            "-fx-background-radius: 5;"
-        );
+
+        UIStyling.button_styling(login_as_guest_button, "#024d60", "white");
 
         registerLink.setOnMouseClicked(e -> {
             new BaseView().start(stage, new RegisterView().start(stage, conn));
@@ -72,7 +58,6 @@ public class LoginView {
         loginGrid.setVgap(10);
         loginGrid.setHgap(10);
 
-        // --- Add title and fields ---
         int row = 0;
         loginGrid.add(titleLabel, 0, row++, 2, 1); // span across 2 columns
         loginGrid.add(userLabel, 0, row);
@@ -86,7 +71,6 @@ public class LoginView {
         loginGrid.add(infoLabel2, 0, row);
         loginGrid.add(login_as_guest_button, 1, row++);
 
-        // --- Center the title ---
         GridPane.setHalignment(titleLabel, javafx.geometry.HPos.CENTER);
         GridPane.setMargin(titleLabel, new Insets(0, 0, 10, 0));
         
@@ -96,14 +80,14 @@ public class LoginView {
 
             Member connected_member = authenticate(username, password, conn); 
             if (connected_member != null) {
-                message.setText("✅ Login successful!");
+                message.setText("Login successful!");
 
                 ApplicationFX.setConnected_member(connected_member);
                 stage.close();
 
                 new MenuView().start(stage, conn);
             } else {
-                message.setText("❌ Invalid credentials");
+                message.setText("Invalid credentials");
             }
         });
 
@@ -116,9 +100,9 @@ public class LoginView {
     }
 
     public static Member authenticate(String username, String password, Connection conn) {
-        // email is unique so we can find the member by it
-        String sql = "SELECT * FROM members WHERE mail = ? AND password = ?"; 
+        // email is unique so we can find the member by it 
         try {
+            String sql = "SELECT * FROM members WHERE mail = ? AND password = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, username);
             pstmt.setString(2, hashPassword(password));

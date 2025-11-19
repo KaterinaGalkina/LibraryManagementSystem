@@ -1,15 +1,12 @@
 package com.library.ui.login;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.time.LocalDate;
-
 import com.library.borrowingsystem.LibraryManager;
 import com.library.people.Member;
 import com.library.ui.ApplicationFX;
-import com.library.ui.menu.MenuView;
-
+import com.library.ui.generalStyling.UIStyling;
+import com.library.ui.workspace.MenuView;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -22,7 +19,6 @@ import javafx.stage.Stage;
 
 public class RegisterView {
     public GridPane start(Stage stage, Connection conn) {
-        // --- Title ---
         Label titleLabel = new Label("Register");
         titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #333333;");
 
@@ -52,44 +48,26 @@ public class RegisterView {
 
         Label message = new Label();
         Button registerButton = new Button("Register");
-        registerButton.setStyle(
-            "-fx-background-color: #2c4237; " +
-            "-fx-text-fill: white; " +
-            "-fx-font-weight: bold; " +
-            "-fx-cursor: hand; " +
-            "-fx-background-radius: 5;"
-        );
+
+        UIStyling.button_styling(registerButton, "#2c4237", "white");
 
         Button backButton = new Button("Back to Login");
-        backButton.setStyle(
-            "-fx-background-color: #304544; " +
-            "-fx-text-fill: white; " +
-            "-fx-font-weight: bold; " +
-            "-fx-cursor: hand; " +
-            "-fx-background-radius: 5;"
-        );
+
+        UIStyling.button_styling(backButton, "#304544", "white");
 
         Label infoLabel2 = new Label("Prefer to do it later?");
         infoLabel2.setStyle("-fx-text-fill: gray;");
 
         Button login_as_guest_button = new Button("Login as guest");
 
-        login_as_guest_button.setStyle(
-            "-fx-background-color: #024d60; " +
-            "-fx-text-fill: white; " +
-            "-fx-font-weight: bold; " +
-            "-fx-cursor: hand; " +
-            "-fx-background-radius: 5;"
-        );
+        UIStyling.button_styling(login_as_guest_button, "#024d60", "white");
 
-        // --- Layout setup ---
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setVgap(10);
         grid.setHgap(15);
         grid.setPadding(new Insets(20, 20, 20, 20));
 
-        // --- Add elements to grid in logical order ---
         int row = 0;
 
         grid.add(titleLabel, 0, row++, 2, 1); // span across 2 columns
@@ -125,11 +103,11 @@ public class RegisterView {
         grid.add(infoLabel2, 0, row);
         grid.add(login_as_guest_button, 1, row++);
 
-         // --- Center the title ---
+        // Centering the title
         GridPane.setHalignment(titleLabel, javafx.geometry.HPos.CENTER);
         GridPane.setMargin(titleLabel, new Insets(0, 0, 10, 0));
 
-        // --- Optional styling ---
+        // Styling
         registerButton.setMaxWidth(Double.MAX_VALUE);
         backButton.setMaxWidth(Double.MAX_VALUE);
 
@@ -139,7 +117,6 @@ public class RegisterView {
             new MenuView().start(stage, conn);
         });
 
-        // --- Register logic ---
         registerButton.setOnAction(e -> {
             String first_name = first_nameField.getText().trim();
             String last_name = last_nameField.getText().trim();
@@ -151,40 +128,32 @@ public class RegisterView {
             String confirm = confirmField.getText();
 
             if (!pass.equals(confirm)) {
-                message.setText("❌ Passwords don't match!");
+                message.setText("Passwords don't match!");
                 return;
             }
 
             if (first_name.isBlank() || last_name.isBlank() || mail.isBlank() || pass.isBlank()) {
-                message.setText("⚠️ Please fill in all required fields.");
+                message.setText("Please fill in all required fields.");
                 return;
             }
 
             if (birthday == null || birthday.isAfter(LocalDate.now())) {
-                message.setText("⚠️ Please enter a valid birthday.");
+                message.setText("Please enter a valid birthday.");
+                return;
+            }
+            
+            // First we are checking whether this email address is already taken
+            if (LibraryManager.exists(conn, "members", "mail", mail)) {
+                message.setText("The user with this email address already exists!");
                 return;
             }
 
-            try {
-                // First we are checking whether this email address is already taken
-                String sql = "SELECT * FROM members WHERE mail = ?";
-                PreparedStatement checkStmt = conn.prepareStatement(sql);
-                checkStmt.setString(1, mail);
-                ResultSet rs = checkStmt.executeQuery();
-                if (rs.next()) {
-                    message.setText("❌ The user with this email address already exists!");
-                    return;
-                }
-
-                Member new_member = new Member(first_name, last_name, birthday, phone, address, mail);
-                if (LibraryManager.add_member(conn, new_member, LoginView.hashPassword(pass))) {
-                    message.setText("✅ Registration successful!");
-                } else {
-                    message.setText("❌ Registration failed!");
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                message.setText("⚠️ Error: user may already exist.");
+            Member new_member = new Member(first_name, last_name, birthday, phone, address, mail);
+            if (LibraryManager.add_member(conn, new_member, LoginView.hashPassword(pass))) {
+                ApplicationFX.addMember(new_member);
+                message.setText("Registration successful!");
+            } else {
+                message.setText("Registration failed!");
             }
         });
 

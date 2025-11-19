@@ -28,22 +28,31 @@ public class Author extends Person {
         written_documents = new HashSet<Document>();
     }
 
-    public void setWritten_documents(Set<Document> written_documents) {
-        this.written_documents = written_documents;
+    // To maintain consistency
+    public void setWritten_documents(Set<Document> new_documents) {
+        for (Document doc : this.written_documents) {
+            doc.deleteAuthor(this);
+        }
+        this.written_documents = new_documents != null ? new_documents : new HashSet<>();
+        for (Document doc : this.written_documents) {
+            doc.addAuthor(this);
+        }
     }
     
     // Adds a document in the list of writings of this author, and returns true if it succeds
     public boolean addDocument(Document new_document){
         if (new_document != null && !written_documents.contains(new_document)){
             written_documents.add(new_document);
+            new_document.addAuthor(this);
             return true;
         }
         return false;
     }
 
     public boolean deleteDocument(Document document_to_delete){
-        if(this.written_documents.contains(document_to_delete)){
+        if (this.written_documents.contains(document_to_delete)){
             this.written_documents.remove(document_to_delete);
+            document_to_delete.deleteAuthor(this);
             return true;
         }
         return false;

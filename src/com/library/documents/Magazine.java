@@ -24,7 +24,7 @@ public class Magazine{
 
     @Override
     public String toString(){
-        return "\"" + this.magazine_title + "\" of periodicity: " + Periodicity.convertPeriodicityToString(this.periodicity);
+        return "\"" + this.magazine_title + "\" of periodicity: " + this.periodicity.toString();
     }
 
     public int getMagazine_id() {
@@ -37,10 +37,6 @@ public class Magazine{
 
     public Periodicity getPeriodicity() {
         return this.periodicity;
-    }
-    
-    public void setMagazine_id(int magazine_id) {
-        this.magazine_id = magazine_id;
     }
 
     public void setMagazine_title(String magazine_title) {
