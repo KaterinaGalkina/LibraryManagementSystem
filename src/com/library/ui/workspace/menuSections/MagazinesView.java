@@ -390,7 +390,7 @@ public class MagazinesView {
         }
 
         if (member.getPenalty_status()) {
-            UIStyling.alert("Your account is suspended. Please contact a librarian.");
+            UIStyling.alert("Your account is suspended. Please pay your fine(s) or/and return overdue documents.");
             return;
         }
 
