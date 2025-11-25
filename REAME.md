@@ -1,19 +1,19 @@
-# Library Management System
+# Authors
+Ekaterina Galkina  
+Nerdjes Ahdad  
 
-### To compile
+---
+## Build the JAR file
 
+To compile the project and generate the executable JAR:
 ```Shell
-mkdir -p bin
-javac -cp "lib/sqlite-jdbc-3.50.3.0.jar" -d bin $(find src -name "*.java")
+mvn clean package
 ```
+After the build succeeds, the JAR file will be available in:
+target/LibraryManagementSystem-1.0-SNAPSHOT.jar
+---
 
-### To run
-
+## Run the application
 ```Shell
-java -cp "bin:lib/sqlite-jdbc-3.50.3.0.jar" MainApplication
+java -jar target/LibraryManagementSystem-1.0-SNAPSHOT.jar
 ```
-
-### Database
-
-Database structure is described in this [first file](database/database_structure.txt).
-And the database itself is in this [second file](database/library_info.db).

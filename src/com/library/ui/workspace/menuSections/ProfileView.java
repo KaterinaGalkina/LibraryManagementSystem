@@ -53,7 +53,12 @@ public class ProfileView {
         }
         return false;
     }
-
+    private boolean isAnyPasswordFilled(PasswordField... fields) {
+        for (PasswordField f : fields) {
+            if (!f.getText().isEmpty()) return true;
+        }
+        return false;
+    }
     public ScrollPane start(Connection conn) { 
         // Main grid
         GridPane grid = new GridPane();
@@ -200,6 +205,29 @@ public class ProfileView {
             saveButton.setDisable(!isAnyFieldModified());
         };
 
+        ChangeListener<String> passwordListener = (obs, oldVal, newVal) -> {
+            boolean anyPasswordFilled = isAnyPasswordFilled(old_passField, new_passField, confirmField);
+            if (anyPasswordFilled) {
+                saveButton.setDisable(false);
+                resetButton.setDisable(false);
+
+                // Apply glow only on non-empty fields
+                PasswordField[] fields = { old_passField, new_passField, confirmField };
+                for (PasswordField f : fields) {
+                    f.setEffect(f.getText().isEmpty() ? null : green_glow);
+                }
+
+            } else {
+                saveButton.setDisable(!isAnyFieldModified());
+                resetButton.setDisable(!isAnyFieldModified());
+                
+                // remove glows
+                old_passField.setEffect(null);
+                new_passField.setEffect(null);
+                confirmField.setEffect(null);
+            }
+        };
+
         // Attaching to fields
         first_nameField.textProperty().addListener(textListener);
         last_nameField.textProperty().addListener(textListener);
@@ -207,6 +235,10 @@ public class ProfileView {
         phoneField.textProperty().addListener(textListener);
         mailField.textProperty().addListener(textListener);
         birth_datePicker.valueProperty().addListener(dateListener);
+        
+        old_passField.textProperty().addListener(passwordListener);
+        new_passField.textProperty().addListener(passwordListener);
+        confirmField.textProperty().addListener(passwordListener);
 
         // Resseting values if the button was clicked
         resetButton.setOnAction(e -> {

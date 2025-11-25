@@ -4,19 +4,19 @@
 -- =====================================================
 PRAGMA foreign_keys = ON;
 
-CREATE TABLE IF NOT EXISTS documents (
+CREATE TABLE documents (
     id INTEGER PRIMARY KEY,
     title TEXT NOT NULL,
     nb_copies INTEGER NOT NULL CHECK(nb_copies >= 0)
 );
 
-CREATE TABLE IF NOT EXISTS magazines (
+CREATE TABLE magazines (
     magazine_id INTEGER PRIMARY KEY,    
     magazine_title TEXT NOT NULL UNIQUE,               
     periodicity TEXT NOT NULL CHECK (periodicity IN ('Daily', 'Weekly', 'Monthly', 'Quarterly', 'Annually'))
 );
 
-CREATE TABLE IF NOT EXISTS magazine_numbers (
+CREATE TABLE  magazine_numbers (
     id INTEGER PRIMARY KEY,
     magazine_id INTEGER NOT NULL, 
     issue_number INTEGER NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS magazine_numbers (
     FOREIGN KEY (magazine_id) REFERENCES magazines(magazine_id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS books (
+CREATE TABLE books (
     id INTEGER PRIMARY KEY,
     isbn TEXT NOT NULL UNIQUE,
     pages_number INTEGER NOT NULL CHECK (pages_number > 0),
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS books (
     FOREIGN KEY (id) REFERENCES documents(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS documents_genres (
+CREATE TABLE  documents_genres (
     document_id INTEGER NOT NULL,
     genre TEXT NOT NULL CHECK (genre IN (
         'Fiction','Classics','Romance','Mystery','Thriller','Detective','Adventure','Fantasy','Science fiction',
@@ -48,14 +48,14 @@ CREATE TABLE IF NOT EXISTS documents_genres (
     FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS people (
+CREATE TABLE people (
     id INTEGER PRIMARY KEY,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     birth_date DATE
 );
 
-CREATE TABLE IF NOT EXISTS documents_authors (
+CREATE TABLE  documents_authors (
     document_id INTEGER NOT NULL,
     author_id INTEGER NOT NULL,
     PRIMARY KEY (document_id, author_id),
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS documents_authors (
     FOREIGN KEY (author_id) REFERENCES people(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS members (
+CREATE TABLE  members (
     id INTEGER PRIMARY KEY,
     penalty_status BOOLEAN DEFAULT 0,
     phone_number TEXT,
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS members (
     FOREIGN KEY (id) REFERENCES people(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS borrowings (
+CREATE TABLE  borrowings (
     id INTEGER PRIMARY KEY,
     document_id INTEGER NOT NULL,
     person_id INTEGER NOT NULL,

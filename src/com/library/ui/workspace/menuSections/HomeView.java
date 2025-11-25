@@ -231,8 +231,13 @@ public class HomeView {
         ArrayList<Borrowing> unpaid_active_borrwings = new ArrayList<>();
         ArrayList<Borrowing> unpaid_past_borrwings = new ArrayList<>();
 
+        boolean prev_status = connectedMember.getPenalty_status();
         // We are updating penalty status of the member
         connectedMember.setPenalty_status(allBorrowings);
+        if (prev_status != connectedMember.getPenalty_status()){
+            // update the DB accordingly
+            LibraryManager.suspend_member(conn, connectedMember);
+        }
 
         for (Borrowing b: allBorrowings) {
             double penalty = b.getPenalty();
@@ -287,8 +292,13 @@ public class HomeView {
             past_overdues_label.setText(" - Past overdues: Total fine: 0.0$");
             pay_fine_button.setDisable(unpaid_active_borrwings.size() == 0);
 
-            // We are updating penalty status of the member, maybe his fine sum is now lower than 10$
+            boolean prev_penaltyStatus = connectedMember.getPenalty_status();
+            // We are updating penalty status of the member
             connectedMember.setPenalty_status(allBorrowings);
+            if (prev_penaltyStatus != connectedMember.getPenalty_status()){
+                // update the DB accordingly
+                LibraryManager.suspend_member(conn, connectedMember);
+            }
         });
 
         return fines_box;
